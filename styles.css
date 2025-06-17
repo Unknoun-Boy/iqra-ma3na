@@ -1,4 +1,4 @@
-/* إعدادات المتغيرات الأساسية مع ألوان الأمان */
+/* إعدادات المتغيرات الأساسية مع ألوان الأمان المحسنة */
 :root {
     --primary-color: #4F46E5;
     --secondary-color: #7C3AED;
@@ -7,6 +7,7 @@
     --warning-color: #F59E0B;
     --error-color: #EF4444;
     --security-color: #059669;
+    --cloud-color: #0891B2;
     --danger-color: #DC2626;
     --text-primary: #1F2937;
     --text-secondary: #6B7280;
@@ -24,6 +25,7 @@
     --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     --gradient-security: linear-gradient(135deg, var(--security-color) 0%, var(--success-color) 100%);
+    --gradient-cloud: linear-gradient(135deg, var(--cloud-color) 0%, var(--accent-color) 100%);
     --gradient-accent: linear-gradient(45deg, var(--accent-color), #0891B2);
     --gradient-success: linear-gradient(45deg, var(--success-color), #059669);
     --gradient-warning: linear-gradient(45deg, var(--warning-color), #D97706);
@@ -54,7 +56,7 @@
     --font-weight-extrabold: 800;
 }
 
-/* إعادة تعيين الأنماط الأساسية */
+/* إعادة تعيين الأنماط الأساسية مع حماية إضافية */
 * {
     margin: 0;
     padding: 0;
@@ -66,9 +68,19 @@
     box-sizing: border-box;
 }
 
+/* حماية من التلاعب بـ CSS */
+*[style*="display: none"] {
+    display: none !important;
+}
+
+*[style*="visibility: hidden"] {
+    visibility: hidden !important;
+}
+
 html {
     scroll-behavior: smooth;
     font-size: 16px;
+    font-family: 'Tajawal', 'Cairo', 'Amiri', 'Noto Sans Arabic', sans-serif !important;
 }
 
 body {
@@ -81,16 +93,22 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
-/* السماح بتحديد النص في المحتوى المناسب */
+/* السماح بتحديد النص في المحتوى المناسب فقط */
 .file-name,
 .stat-number,
 p,
 .upload-text,
 .upload-subtext,
 .form-input,
-.search-box {
+.search-box,
+.modal-content p,
+.security-note {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
@@ -114,7 +132,7 @@ select {
     position: relative;
 }
 
-/* مؤشر حالة الأمان */
+/* مؤشر حالة الأمان المحسن */
 .security-status {
     position: fixed;
     top: 20px;
@@ -131,11 +149,19 @@ select {
     align-items: center;
     gap: 8px;
     animation: securityPulse 2s infinite;
+    pointer-events: none;
+    user-select: none;
 }
 
 @keyframes securityPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
+    0%, 100% { 
+        opacity: 1; 
+        box-shadow: var(--shadow-md);
+    }
+    50% { 
+        opacity: 0.8; 
+        box-shadow: var(--shadow-lg);
+    }
 }
 
 /* أنماط الرأس مع تحسينات أمنية */
@@ -160,7 +186,7 @@ select {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(5, 150, 105, 0.05), rgba(16, 185, 129, 0.05));
+    background: linear-gradient(45deg, rgba(5, 150, 105, 0.05), rgba(8, 145, 178, 0.05));
     pointer-events: none;
     z-index: 0;
 }
@@ -185,6 +211,8 @@ select {
     margin-bottom: 10px;
     text-shadow: 0 0 30px rgba(5, 150, 105, 0.3);
     animation: securityGlow 3s ease-in-out infinite alternate;
+    user-select: none;
+    pointer-events: none;
 }
 
 .logo .tagline {
@@ -197,7 +225,7 @@ select {
 
 .subtitle {
     text-align: center;
-    color: var(--security-color);
+    color: var(--cloud-color);
     font-size: var(--font-size-sm);
     margin-top: 5px;
     margin-bottom: 20px;
@@ -231,6 +259,7 @@ select {
     position: relative;
     overflow: hidden;
     z-index: 1;
+    user-select: none;
 }
 
 .auth-btn::before {
@@ -259,7 +288,7 @@ select {
     display: none;
 }
 
-/* قسم الإحصائيات مع مؤشرات أمنية */
+/* قسم الإحصائيات مع مؤشرات التخزين السحابي */
 .stats-section {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
@@ -277,7 +306,7 @@ select {
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-semibold);
     margin-bottom: 30px;
-    background: var(--gradient-security);
+    background: var(--gradient-cloud);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -309,7 +338,7 @@ select {
     left: 0;
     right: 0;
     height: 4px;
-    background: var(--gradient-security);
+    background: var(--gradient-cloud);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -326,14 +355,14 @@ select {
 .stat-icon {
     font-size: 2.5rem;
     margin-bottom: 15px;
-    color: var(--security-color);
+    color: var(--cloud-color);
     display: block;
 }
 
 .stat-number {
     font-size: 2rem;
     font-weight: var(--font-weight-bold);
-    color: var(--security-color);
+    color: var(--cloud-color);
     margin-bottom: 8px;
     display: block;
     word-break: break-word;
@@ -356,6 +385,7 @@ select {
     box-shadow: var(--shadow-xl);
     border: 1px solid rgba(255, 255, 255, 0.3);
     display: none;
+    user-select: none;
 }
 
 .admin-section.active {
@@ -367,7 +397,7 @@ select {
     text-align: center;
     margin-bottom: 30px;
     padding: 25px;
-    background: var(--gradient-security);
+    background: var(--gradient-cloud);
     border-radius: var(--border-radius-lg);
     color: white;
     box-shadow: var(--shadow-lg);
@@ -410,17 +440,18 @@ select {
     align-items: center;
     gap: 8px;
     border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    user-select: none;
 }
 
 .tab-btn:hover {
-    color: var(--security-color);
-    background: rgba(5, 150, 105, 0.05);
+    color: var(--cloud-color);
+    background: rgba(8, 145, 178, 0.05);
 }
 
 .tab-btn.active {
-    color: var(--security-color);
-    border-bottom-color: var(--security-color);
-    background: rgba(5, 150, 105, 0.1);
+    color: var(--cloud-color);
+    border-bottom-color: var(--cloud-color);
+    background: rgba(8, 145, 178, 0.1);
 }
 
 .tab-content {
@@ -432,15 +463,15 @@ select {
     display: block;
 }
 
-/* منطقة الرفع الآمن */
+/* منطقة الرفع الآمن للسحابة */
 .upload-area {
-    border: 3px dashed var(--security-color);
+    border: 3px dashed var(--cloud-color);
     border-radius: var(--border-radius-lg);
     padding: 40px;
     text-align: center;
     cursor: pointer;
     transition: var(--transition-normal);
-    background: rgba(5, 150, 105, 0.03);
+    background: rgba(8, 145, 178, 0.03);
     margin-bottom: 25px;
     position: relative;
     overflow: hidden;
@@ -453,7 +484,7 @@ select {
     left: 50%;
     width: 0;
     height: 0;
-    background: radial-gradient(circle, rgba(5, 150, 105, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(8, 145, 178, 0.1) 0%, transparent 70%);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     transition: all 0.3s ease;
@@ -466,24 +497,29 @@ select {
 }
 
 .upload-area:hover {
-    border-color: var(--success-color);
-    background: rgba(5, 150, 105, 0.08);
+    border-color: var(--accent-color);
+    background: rgba(8, 145, 178, 0.08);
     transform: scale(1.02);
 }
 
 .upload-area.dragover {
-    background: rgba(5, 150, 105, 0.15);
-    border-color: var(--success-color);
+    background: rgba(8, 145, 178, 0.15);
+    border-color: var(--accent-color);
     transform: scale(1.05);
 }
 
 .upload-icon {
     font-size: 4rem;
-    color: var(--security-color);
+    color: var(--cloud-color);
     margin-bottom: 20px;
     position: relative;
     z-index: 1;
-    animation: bounce 2s infinite;
+    animation: cloudFloat 3s ease-in-out infinite;
+}
+
+@keyframes cloudFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }
 
 .upload-text {
@@ -530,9 +566,9 @@ select {
 
 .form-input:focus {
     outline: none;
-    border-color: var(--security-color);
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    background: rgba(5, 150, 105, 0.02);
+    border-color: var(--cloud-color);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+    background: rgba(8, 145, 178, 0.02);
 }
 
 .form-input:invalid {
@@ -544,9 +580,19 @@ select {
     color: var(--text-light);
 }
 
+/* حماية كلمة المرور */
+.form-input[type="password"] {
+    font-family: monospace;
+    letter-spacing: 2px;
+}
+
+.form-input[type="password"]::-webkit-textfield-decoration-container {
+    display: none;
+}
+
 /* عناصر الأمان */
 .security-note {
-    color: var(--security-color);
+    color: var(--cloud-color);
     font-size: 0.8rem;
     font-weight: 500;
     margin-top: 5px;
@@ -554,12 +600,12 @@ select {
 }
 
 .security-info {
-    background: rgba(5, 150, 105, 0.1);
-    color: var(--security-color);
+    background: rgba(8, 145, 178, 0.1);
+    color: var(--cloud-color);
     padding: 10px 15px;
     border-radius: var(--border-radius-md);
     margin: 15px 0;
-    border: 1px solid rgba(5, 150, 105, 0.3);
+    border: 1px solid rgba(8, 145, 178, 0.3);
     text-align: center;
     font-size: 0.9rem;
 }
@@ -571,16 +617,22 @@ select {
     gap: 10px;
     font-weight: var(--font-weight-medium);
     cursor: pointer;
+    user-select: none;
 }
 
 .checkbox-label input[type="checkbox"] {
     transform: scale(1.2);
-    accent-color: var(--security-color);
+    accent-color: var(--cloud-color);
+}
+
+.checkbox-label input[type="checkbox"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* الأزرار المحسنة */
 .btn {
-    background: var(--gradient-security);
+    background: var(--gradient-cloud);
     color: white;
     border: none;
     padding: 15px 30px;
@@ -597,6 +649,7 @@ select {
     overflow: hidden;
     z-index: 1;
     box-shadow: var(--shadow-md);
+    user-select: none;
 }
 
 .btn::before {
@@ -668,7 +721,7 @@ select {
 
 .progress-bar {
     height: 100%;
-    background: var(--gradient-security);
+    background: var(--gradient-cloud);
     border-radius: var(--border-radius-full);
     transition: width 0.3s ease;
     display: flex;
@@ -706,10 +759,11 @@ select {
     padding: 20px;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
+    user-select: none;
 }
 
 .security-card h4 {
-    color: var(--security-color);
+    color: var(--cloud-color);
     margin-bottom: 15px;
     font-size: 1.1rem;
 }
@@ -752,7 +806,8 @@ select {
     border-radius: var(--border-radius-sm);
     margin-bottom: 8px;
     font-size: 0.9rem;
-    border-left: 3px solid var(--security-color);
+    border-left: 3px solid var(--cloud-color);
+    user-select: text;
 }
 
 /* قسم الملفات */
@@ -773,7 +828,7 @@ select {
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-semibold);
     margin-bottom: 30px;
-    background: var(--gradient-security);
+    background: var(--gradient-cloud);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -800,8 +855,8 @@ select {
 
 .search-box:focus {
     outline: none;
-    border-color: var(--security-color);
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    border-color: var(--cloud-color);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
 }
 
 .search-box::placeholder {
@@ -823,8 +878,8 @@ select {
 
 .sort-select:focus {
     outline: none;
-    border-color: var(--security-color);
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    border-color: var(--cloud-color);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
 }
 
 /* شبكة الملفات */
@@ -853,7 +908,7 @@ select {
     left: 0;
     right: 0;
     height: 4px;
-    background: var(--gradient-security);
+    background: var(--gradient-cloud);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -867,9 +922,24 @@ select {
     box-shadow: var(--shadow-xl);
 }
 
+/* مؤشر التخزين السحابي */
+.storage-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--gradient-cloud);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    z-index: 2;
+    user-select: none;
+}
+
 .file-icon {
     font-size: 3rem;
-    color: var(--error-color);
+    color: var(--cloud-color);
     text-align: center;
     margin-bottom: 20px;
     display: block;
@@ -917,6 +987,7 @@ select {
     align-items: center;
     gap: 5px;
     box-shadow: var(--shadow-sm);
+    user-select: none;
 }
 
 .action-btn:hover {
@@ -925,7 +996,7 @@ select {
 }
 
 .view-btn {
-    background: var(--gradient-accent);
+    background: var(--gradient-cloud);
 }
 
 .download-btn {
@@ -970,6 +1041,7 @@ select {
     box-shadow: var(--shadow-2xl);
     animation: scaleIn 0.3s ease;
     position: relative;
+    user-select: none;
 }
 
 .modal-header {
@@ -980,7 +1052,7 @@ select {
 .modal-title {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-semibold);
-    color: var(--security-color);
+    color: var(--cloud-color);
 }
 
 /* عارض PDF */
@@ -1010,6 +1082,7 @@ select {
     align-items: center;
     flex-wrap: wrap;
     gap: 15px;
+    user-select: none;
 }
 
 .pdf-header h3 {
@@ -1054,7 +1127,7 @@ select {
 .loading-spinner i {
     font-size: 3rem;
     margin-bottom: 20px;
-    color: var(--security-color);
+    color: var(--cloud-color);
 }
 
 .loading-spinner p {
@@ -1092,9 +1165,9 @@ select {
 }
 
 .status-info {
-    background: rgba(6, 182, 212, 0.1);
-    color: var(--accent-color);
-    border-color: rgba(6, 182, 212, 0.3);
+    background: rgba(8, 145, 178, 0.1);
+    color: var(--cloud-color);
+    border-color: rgba(8, 145, 178, 0.3);
 }
 
 /* عدم وجود ملفات */
@@ -1169,30 +1242,35 @@ select {
     }
 }
 
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-    }
-    40% {
-        transform: translateY(-10px);
-    }
-    60% {
-        transform: translateY(-5px);
-    }
-}
-
 @keyframes securityGlow {
     from {
-        text-shadow: 0 0 20px rgba(5, 150, 105, 0.3);
+        text-shadow: 0 0 20px rgba(8, 145, 178, 0.3);
     }
     to {
-        text-shadow: 0 0 30px rgba(5, 150, 105, 0.6);
+        text-shadow: 0 0 30px rgba(8, 145, 178, 0.6);
     }
 }
 
 @keyframes shimmer {
     0% { left: -100%; }
     100% { left: 100%; }
+}
+
+/* حماية من التلاعب بالأنماط */
+.admin-section[style*="display: block"] {
+    display: block !important;
+}
+
+.security-status[style*="display: none"] {
+    display: flex !important;
+}
+
+/* منع تغيير الخطوط الحساسة */
+.auth-btn,
+.btn,
+.modal-content,
+.admin-section {
+    font-family: 'Tajawal', 'Cairo', 'Amiri', 'Noto Sans Arabic', sans-serif !important;
 }
 
 /* التصميم المتجاوب */
@@ -1405,7 +1483,7 @@ button:focus,
 input:focus,
 select:focus,
 textarea:focus {
-    outline: 2px solid var(--security-color);
+    outline: 2px solid var(--cloud-color);
     outline-offset: 2px;
 }
 
@@ -1421,29 +1499,31 @@ textarea:focus {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--security-color);
+    background: var(--cloud-color);
     border-radius: var(--border-radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--success-color);
+    background: var(--accent-color);
 }
 
 /* تحسينات التحديد */
 ::selection {
-    background: rgba(5, 150, 105, 0.2);
+    background: rgba(8, 145, 178, 0.2);
     color: var(--text-primary);
 }
 
 ::-moz-selection {
-    background: rgba(5, 150, 105, 0.2);
+    background: rgba(8, 145, 178, 0.2);
     color: var(--text-primary);
 }
 
 /* منع النسخ والتحديد في العناصر الحساسة */
 .admin-section,
 .auth-btn,
-.modal-content {
+.modal-content,
+.security-status,
+.admin-header {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -1451,3 +1531,187 @@ textarea:focus {
     -ms-user-select: none;
     user-select: none;
 }
+
+/* حماية من تغيير الأنماط عبر JavaScript */
+.admin-section,
+.security-status,
+.auth-btn {
+    pointer-events: auto !important;
+    visibility: visible !important;
+}
+
+/* حماية من إخفاء العناصر الحساسة */
+.security-status[style*="visibility: hidden"],
+.security-status[style*="display: none"] {
+    visibility: visible !important;
+    display: flex !important;
+}
+
+/* تأثيرات خاصة للتخزين السحابي */
+.cloud-effect {
+    background: linear-gradient(45deg, rgba(8, 145, 178, 0.1), rgba(6, 182, 212, 0.1));
+    border: 1px solid rgba(8, 145, 178, 0.2);
+}
+
+.cloud-glow {
+    box-shadow: 0 0 20px rgba(8, 145, 178, 0.3);
+}
+
+/* حماية نهائية من التلاعب */
+* {
+    -webkit-user-modify: read-only;
+    -moz-user-modify: read-only;
+}
+
+.form-input,
+.search-box {
+    -webkit-user-modify: read-write;
+    -moz-user-modify: read-write;
+}
+
+/* تحسينات خاصة للواجهة */
+.checkmark {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    transition: var(--transition-normal);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: var(--cloud-color);
+    border-color: var(--cloud-color);
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* تحسينات للجداول */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: inherit;
+}
+
+table th,
+table td {
+    text-align: right;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+table th {
+    background: var(--bg-accent);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+table tr:hover {
+    background: rgba(8, 145, 178, 0.05);
+}
+
+/* أنماط إضافية للأيقونات */
+.fas,
+.far,
+.fab {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* تحسينات للنماذج */
+.form-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.form-row .form-group {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* تحسينات للرسائل المتحركة */
+.message-enter {
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+.message-exit {
+    animation: messageSlideOut 0.3s ease-in;
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes messageSlideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* تحسينات نهائية للأداء */
+.will-change-transform {
+    will-change: transform;
+}
+
+.will-change-opacity {
+    will-change: opacity;
+}
+
+.gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* تحسينات للطباعة المتقدمة */
+@page {
+    margin: 2cm;
+}
+
+@media print {
+    .no-print,
+    .admin-section,
+    .auth-section,
+    .security-status {
+        display: none !important;
+    }
+    
+    .print-break-before {
+        page-break-before: always;
+    }
+    
+    .print-break-after {
+        page-break-after: always;
+    }
+    
+    .print-break-inside-avoid {
+        page-break-inside: avoid;
+    }
+}
+
+/* نهاية ملف CSS */
