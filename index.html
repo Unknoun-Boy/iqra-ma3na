@@ -3,958 +3,526 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إقرأ معنا | مكتبتك الرقمية الذكية</title>
-    <meta name="description" content="مكتبة رقمية متطورة لإدارة ومشاركة الكتب والملفات مع نظام إدارة متقدم">
-    <meta name="keywords" content="مكتبة, كتب, PDF, قراءة, تعليم, إقرأ معنا">
+    
+    <!-- Content Security Policy للحماية من XSS -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+        font-src https://fonts.gstatic.com;
+        img-src 'self' data: blob:;
+        connect-src 'self';
+        frame-src 'self' blob:;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    
+    <!-- Headers أمنية إضافية -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <title>إقرأ معنا | مكتبتك الرقمية الآمنة</title>
+    <meta name="description" content="مكتبة رقمية آمنة ومتطورة لإدارة ومشاركة الكتب والملفات مع أحدث معايير الأمان">
+    <meta name="keywords" content="مكتبة, كتب, PDF, قراءة, تعليم, إقرأ معنا, آمن, مشفر">
     <meta name="author" content="فريق إقرأ معنا">
     
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="إقرأ معنا - مكتبتك الرقمية الذكية">
-    <meta property="og:description" content="اكتشف عالم المعرفة مع مكتبتنا الرقمية المتطورة">
+    <meta property="og:title" content="إقرأ معنا - مكتبتك الرقمية الآمنة">
+    <meta property="og:description" content="اكتشف عالم المعرفة مع مكتبتنا الرقمية المتطورة والآمنة">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://iqra-mana.github.io">
+    <meta property="og:image" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒📚</text></svg>">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒📚</text></svg>">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Font Awesome مع التحقق من النزاهة -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+          integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" 
+          crossorigin="anonymous" 
+          referrerpolicy="no-referrer">
     
     <!-- CSS -->
-    <style>
-        :root {
-            --primary-color: #4F46E5;
-            --secondary-color: #7C3AED;
-            --accent-color: #06B6D4;
-            --success-color: #10B981;
-            --warning-color: #F59E0B;
-            --error-color: #EF4444;
-            --text-primary: #1F2937;
-            --text-secondary: #6B7280;
-            --bg-primary: #FFFFFF;
-            --bg-secondary: #F9FAFB;
-            --bg-accent: #F3F4F6;
-            --border-color: #E5E7EB;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            min-height: 100vh;
-            color: var(--text-primary);
-            direction: rtl;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Header Styles */
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
-            pointer-events: none;
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logo h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-        }
-
-        .logo .tagline {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-
-        .auth-section {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 25px;
-        }
-
-        .auth-btn {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-md);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .auth-btn.logout-btn {
-            background: linear-gradient(45deg, var(--error-color), #DC2626);
-            display: none;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .stats-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: var(--bg-primary);
-            border-radius: 16px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
-            border: 1px solid var(--border-color);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        /* Admin Section */
-        .admin-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            display: none;
-        }
-
-        .admin-section.active {
-            display: block;
-            animation: fadeInUp 0.5s ease;
-        }
-
-        .admin-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            border-radius: 16px;
-            color: white;
-        }
-
-        .admin-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--border-color);
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 15px 25px;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Upload Section */
-        .upload-area {
-            border: 3px dashed var(--primary-color);
-            border-radius: 16px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(79, 70, 229, 0.05);
-            margin-bottom: 25px;
-        }
-
-        .upload-area:hover {
-            border-color: var(--secondary-color);
-            background: rgba(79, 70, 229, 0.1);
-            transform: scale(1.02);
-        }
-
-        .upload-area.dragover {
-            background: rgba(79, 70, 229, 0.2);
-            border-color: var(--secondary-color);
-        }
-
-        .upload-icon {
-            font-size: 4rem;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .upload-text {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-        }
-
-        .upload-subtext {
-            color: var(--text-secondary);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: var(--bg-primary);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .btn {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 5px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-secondary {
-            background: var(--text-secondary);
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, var(--success-color), #059669);
-        }
-
-        .btn-warning {
-            background: linear-gradient(45deg, var(--warning-color), #D97706);
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, var(--error-color), #DC2626);
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            background: var(--bg-accent);
-            border-radius: 50px;
-            height: 25px;
-            margin: 20px 0;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            border-radius: 50px;
-            transition: width 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 500;
-            width: 0%;
-        }
-
-        /* Files Section */
-        .files-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .search-controls {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 300px;
-            padding: 15px 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 50px;
-            font-size: 1rem;
-            background: var(--bg-primary);
-            transition: all 0.3s ease;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .sort-select {
-            padding: 15px 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 25px;
-            background: var(--bg-primary);
-            font-size: 1rem;
-            cursor: pointer;
-            min-width: 200px;
-        }
-
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-        }
-
-        .file-card {
-            background: var(--bg-primary);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s ease;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-        }
-
-        .file-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .file-icon {
-            font-size: 3rem;
-            color: var(--error-color);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .file-name {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 15px;
-            text-align: center;
-            word-break: break-word;
-        }
-
-        .file-info {
-            color: var(--text-secondary);
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-        }
-
-        .file-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: white;
-        }
-
-        .view-btn {
-            background: linear-gradient(45deg, var(--accent-color), #0891B2);
-        }
-
-        .download-btn {
-            background: linear-gradient(45deg, var(--success-color), #059669);
-        }
-
-        .edit-btn {
-            background: linear-gradient(45deg, var(--warning-color), #D97706);
-        }
-
-        .delete-btn {
-            background: linear-gradient(45deg, var(--error-color), #DC2626);
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-primary);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: var(--shadow-xl);
-        }
-
-        .modal-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        /* PDF Viewer */
-        .pdf-viewer {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 1001;
-        }
-
-        .pdf-viewer.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .pdf-header {
-            background: var(--text-primary);
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pdf-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .pdf-frame {
-            flex: 1;
-            border: none;
-            width: 100%;
-        }
-
-        /* Status Messages */
-        .status-message {
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-            font-weight: 500;
-            text-align: center;
-            animation: slideIn 0.3s ease;
-        }
-
-        .status-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .status-error {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--error-color);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .status-warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning-color);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        .status-info {
-            background: rgba(6, 182, 212, 0.1);
-            color: var(--accent-color);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        .no-files {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            padding: 60px 40px;
-            background: var(--bg-accent);
-            border-radius: 16px;
-            border: 2px dashed var(--border-color);
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            .logo h1 {
-                font-size: 2.5rem;
-            }
-
-            .auth-section {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .search-controls {
-                flex-direction: column;
-            }
-
-            .search-box {
-                min-width: auto;
-            }
-
-            .files-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-tabs {
-                justify-content: center;
-            }
-
-            .tab-btn {
-                font-size: 0.9rem;
-                padding: 12px 20px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .file-actions {
-                flex-direction: column;
-            }
-
-            .action-btn {
-                width: 100%;
-            }
-
-            .pdf-controls {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        /* Hidden Elements */
-        .hidden {
-            display: none !important;
-        }
-
-        .file-input {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="script.js" as="script">
+    <link rel="preload" href="styles.css" as="style">
 </head>
 <body>
+    <!-- Security Notice (مخفي للمستخدمين العاديين) -->
+    <!-- 
+    تنبيه أمني للمطورين:
+    - جميع المدخلات يتم تنقيتها من XSS
+    - البيانات الحساسة مشفرة بـ AES-256
+    - نظام Rate Limiting نشط
+    - مراقبة الأنشطة المشبوهة مفعلة
+    -->
+    
     <div class="container">
-        <!-- Header Section -->
-        <header class="header">
+        <!-- Security Status Indicator -->
+        <div class="security-status" id="securityStatus">
+            <i class="fas fa-shield-alt"></i>
+            <span>النظام آمن ومحمي</span>
+        </div>
+
+        <!-- Header -->
+        <header class="header" role="banner">
             <div class="header-content">
                 <div class="logo">
-                    <h1>📚 إقرأ معنا</h1>
-                    <p class="tagline">مكتبتك الرقمية الذكية - اكتشف عالم المعرفة والقراءة</p>
+                    <h1 id="mainTitle">🔒📚 إقرأ معنا</h1>
+                    <p class="tagline">مكتبتك الرقمية الآمنة - اكتشف عالم المعرفة والقراءة</p>
+                    <div class="subtitle">منصة محسنة بأحدث معايير الأمان الرقمي والتشفير المتقدم</div>
                 </div>
                 
-                <div class="auth-section">
-                    <button class="auth-btn" onclick="showLoginModal('admin')">
-                        <i class="fas fa-unlock-alt"></i>
-                        دخول الأدمن
+                <nav class="auth-section" role="navigation" aria-label="تسجيل الدخول">
+                    <button class="auth-btn" 
+                            onclick="showLoginModal('admin')" 
+                            data-action="admin-login"
+                            aria-label="دخول الأدمن الآمن">
+                        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                        <span>دخول الأدمن الآمن</span>
                     </button>
-                    <button class="auth-btn" onclick="showLoginModal('moderator')">
-                        <i class="fas fa-user-shield"></i>
-                        دخول المشرفين
+                    <button class="auth-btn" 
+                            onclick="showLoginModal('moderator')" 
+                            data-action="moderator-login"
+                            aria-label="دخول المشرفين">
+                        <i class="fas fa-user-shield" aria-hidden="true"></i>
+                        <span>دخول المشرفين</span>
                     </button>
-                    <button class="auth-btn logout-btn" id="logoutBtn" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        تسجيل الخروج
+                    <button class="auth-btn logout-btn" 
+                            id="logoutBtn" 
+                            onclick="logout()" 
+                            style="display: none;"
+                            aria-label="تسجيل الخروج الآمن">
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                        <span>تسجيل الخروج الآمن</span>
                     </button>
-                </div>
+                </nav>
             </div>
         </header>
 
         <!-- Statistics Section -->
-        <section class="stats-section">
-            <h2 class="stats-title">📊 إحصائيات مكتبة إقرأ معنا</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">📚</div>
-                    <div class="stat-number" id="totalBooks">0</div>
+        <section class="stats-section" role="region" aria-labelledby="stats-title">
+            <h2 class="stats-title" id="stats-title">📊 إحصائيات مكتبة إقرأ معنا الآمنة</h2>
+            <div class="stats-grid" role="group">
+                <div class="stat-card" role="img" aria-label="إجمالي الكتب">
+                    <div class="stat-icon" aria-hidden="true">📚</div>
+                    <div class="stat-number" id="totalBooks" aria-live="polite">0</div>
                     <div class="stat-label">إجمالي الكتب</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💾</div>
-                    <div class="stat-number" id="totalSize">0 MB</div>
+                <div class="stat-card" role="img" aria-label="حجم المكتبة">
+                    <div class="stat-icon" aria-hidden="true">💾</div>
+                    <div class="stat-number" id="totalSize" aria-live="polite">0 MB</div>
                     <div class="stat-label">حجم المكتبة</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-number" id="totalModerators">0</div>
+                <div class="stat-card" role="img" aria-label="فريق الإدارة">
+                    <div class="stat-icon" aria-hidden="true">👥</div>
+                    <div class="stat-number" id="totalModerators" aria-live="polite">0</div>
                     <div class="stat-label">فريق الإدارة</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🆕</div>
-                    <div class="stat-number" id="lastUpload">-</div>
+                <div class="stat-card" role="img" aria-label="مستوى الأمان">
+                    <div class="stat-icon" aria-hidden="true">🔐</div>
+                    <div class="stat-number" id="securityLevel" aria-live="polite">AAA</div>
+                    <div class="stat-label">مستوى الأمان</div>
+                </div>
+                <div class="stat-card" role="img" aria-label="آخر إضافة">
+                    <div class="stat-icon" aria-hidden="true">🆕</div>
+                    <div class="stat-number" id="lastUpload" aria-live="polite">-</div>
                     <div class="stat-label">آخر إضافة</div>
                 </div>
             </div>
         </section>
 
         <!-- Admin Section -->
-        <section class="admin-section" id="adminSection">
+        <section class="admin-section" id="adminSection" role="region" aria-labelledby="admin-title">
             <div class="admin-header">
-                <h2>🛠️ لوحة إدارة مكتبة إقرأ معنا</h2>
-                <p>إدارة متقدمة للكتب والمستخدمين</p>
+                <h2 id="admin-title">🛡️ لوحة إدارة مكتبة إقرأ معنا الآمنة</h2>
+                <p>إدارة متقدمة مع أحدث معايير الأمان الرقمي والتشفير</p>
             </div>
 
-            <div class="admin-tabs">
-                <button class="tab-btn active" onclick="switchTab('books')">
-                    <i class="fas fa-book"></i>
-                    إدارة الكتب
+            <nav class="admin-tabs" role="tablist" aria-label="تبويبات الإدارة">
+                <button class="tab-btn active" 
+                        onclick="switchTab('books')" 
+                        data-tab="books"
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="booksTab"
+                        id="books-tab">
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                    <span>إدارة الكتب</span>
                 </button>
-                <button class="tab-btn" onclick="switchTab('moderators')" id="moderatorsTabBtn" style="display: none;">
-                    <i class="fas fa-users"></i>
-                    إدارة المشرفين
+                <button class="tab-btn" 
+                        onclick="switchTab('moderators')" 
+                        id="moderatorsTabBtn" 
+                        style="display: none;" 
+                        data-tab="moderators"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="moderatorsTab">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                    <span>إدارة المشرفين</span>
                 </button>
-                <button class="tab-btn" onclick="switchTab('settings')" id="settingsTabBtn" style="display: none;">
-                    <i class="fas fa-cog"></i>
-                    الإعدادات
+                <button class="tab-btn" 
+                        onclick="switchTab('settings')" 
+                        id="settingsTabBtn" 
+                        style="display: none;" 
+                        data-tab="settings"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="settingsTab">
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    <span>الإعدادات الآمنة</span>
                 </button>
-                <button class="tab-btn" onclick="switchTab('backup')">
-                    <i class="fas fa-download"></i>
-                    النسخ الاحتياطي
+                <button class="tab-btn" 
+                        onclick="switchTab('security')" 
+                        id="securityTabBtn" 
+                        style="display: none;" 
+                        data-tab="security"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="securityTab">
+                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                    <span>مراقبة الأمان</span>
                 </button>
-            </div>
+                <button class="tab-btn" 
+                        onclick="switchTab('backup')" 
+                        data-tab="backup"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="backupTab">
+                    <i class="fas fa-download" aria-hidden="true"></i>
+                    <span>النسخ الاحتياطي</span>
+                </button>
+            </nav>
 
             <!-- Books Management Tab -->
-            <div class="tab-content active" id="booksTab">
+            <div class="tab-content active" id="booksTab" role="tabpanel" aria-labelledby="books-tab">
                 <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    📚 إضافة كتاب جديد إلى المكتبة
+                    📚 إضافة كتاب جديد بشكل آمن ومشفر
                 </h3>
                 
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()" 
-                     ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                    <div class="upload-icon">📄</div>
+                <div class="upload-area" 
+                     onclick="document.getElementById('fileInput').click()" 
+                     ondrop="handleDrop(event)" 
+                     ondragover="handleDragOver(event)" 
+                     ondragleave="handleDragLeave(event)"
+                     role="button"
+                     tabindex="0"
+                     aria-label="منطقة رفع الملفات - اسحب ملف PDF هنا أو انقر للاختيار"
+                     onkeydown="if(event.key==='Enter'||event.key===' ') document.getElementById('fileInput').click()">
+                    <div class="upload-icon" aria-hidden="true">🔒📄</div>
                     <div class="upload-text">اسحب ملف PDF هنا أو انقر للاختيار</div>
-                    <div class="upload-subtext">يدعم ملفات PDF فقط - الحد الأقصى: 100 ميجابايت</div>
+                    <div class="upload-subtext">
+                        يدعم ملفات PDF فقط - الحد الأقصى: 100 ميجابايت
+                        <br>
+                        <small>🔐 جميع الملفات يتم فحصها أمنياً وتشفيرها قبل الحفظ</small>
+                    </div>
                 </div>
                 
-                <input type="file" id="fileInput" class="file-input" accept=".pdf" onchange="handleFileSelect(event)">
+                <input type="file" 
+                       id="fileInput" 
+                       class="file-input" 
+                       accept=".pdf" 
+                       onchange="handleFileSelect(event)"
+                       aria-label="اختيار ملف PDF">
                 
                 <div class="form-group hidden" id="fileNameGroup">
-                    <input type="text" id="fileNameInput" class="form-input" placeholder="عنوان الكتاب (اختياري)">
+                    <label for="fileNameInput" class="form-label">عنوان الكتاب:</label>
+                    <input type="text" 
+                           id="fileNameInput" 
+                           class="form-input" 
+                           placeholder="عنوان الكتاب" 
+                           maxlength="100" 
+                           pattern="[a-zA-Z0-9\u0600-\u06FF\s._-]+"
+                           aria-describedby="filename-help">
+                    <small id="filename-help" class="security-note">
+                        يُسمح بالأحرف العربية والإنجليزية والأرقام والرموز الآمنة فقط
+                    </small>
                 </div>
                 
-                <div class="progress-container" id="progressContainer">
+                <div class="progress-container" id="progressContainer" role="progressbar" aria-live="polite">
                     <div class="progress-bar" id="progressBar">0%</div>
                 </div>
                 
-                <div style="text-align: center;">
-                    <button class="btn" id="uploadBtn" onclick="uploadFile()" disabled>
-                        <i class="fas fa-upload"></i>
-                        رفع إلى المكتبة
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" 
+                            id="uploadBtn" 
+                            onclick="uploadFile()" 
+                            disabled 
+                            data-action="upload"
+                            aria-label="رفع الكتاب بأمان إلى المكتبة">
+                        <i class="fas fa-upload" aria-hidden="true"></i>
+                        <span>رفع آمن إلى المكتبة</span>
                     </button>
-                    <button class="btn btn-secondary" onclick="clearSelection()">
-                        <i class="fas fa-times"></i>
-                        إلغاء
+                    <button class="btn btn-secondary" 
+                            onclick="clearSelection()" 
+                            data-action="clear"
+                            aria-label="إلغاء التحديد">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        <span>إلغاء</span>
                     </button>
                 </div>
                 
-                <div id="statusMessage"></div>
+                <div id="statusMessage" role="alert" aria-live="assertive"></div>
             </div>
 
             <!-- Moderators Management Tab -->
-            <div class="tab-content" id="moderatorsTab">
+            <div class="tab-content" id="moderatorsTab" role="tabpanel" aria-labelledby="moderators-tab">
                 <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    👥 إدارة فريق عمل المكتبة
+                    👥 إدارة فريق العمل بأمان متقدم
                 </h3>
                 
                 <div style="background: var(--bg-accent); padding: 25px; border-radius: 16px; margin-bottom: 25px;">
                     <h4 style="margin-bottom: 20px;">إضافة مشرف جديد</h4>
-                    <div class="form-group">
-                        <input type="text" id="newModUsername" class="form-input" placeholder="اسم المستخدم">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="newModPassword" class="form-input" placeholder="كلمة المرور">
-                    </div>
-                    <button class="btn btn-success" onclick="addModerator()">
-                        <i class="fas fa-user-plus"></i>
-                        إضافة للفريق
-                    </button>
+                    <form onsubmit="event.preventDefault(); addModerator();" novalidate>
+                        <div class="form-group">
+                            <label for="newModUsername" class="form-label">اسم المستخدم:</label>
+                            <input type="text" 
+                                   id="newModUsername" 
+                                   class="form-input" 
+                                   placeholder="اسم المستخدم" 
+                                   maxlength="50" 
+                                   pattern="[a-zA-Z0-9_-]+"
+                                   required
+                                   aria-describedby="username-help">
+                            <small id="username-help" class="security-note">
+                                أحرف إنجليزية وأرقام و_ و- فقط (3-50 حرف)
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="newModPassword" class="form-label">كلمة المرور:</label>
+                            <input type="password" 
+                                   id="newModPassword" 
+                                   class="form-input" 
+                                   placeholder="كلمة مرور قوية" 
+                                   minlength="8"
+                                   required
+                                   aria-describedby="password-help">
+                            <small id="password-help" class="security-note">
+                                8 أحرف على الأقل مع مزيج من الأحرف الكبيرة والصغيرة والأرقام والرموز
+                            </small>
+                        </div>
+                        <button type="submit" 
+                                class="btn btn-success" 
+                                data-action="add-moderator"
+                                aria-label="إضافة مشرف جديد للفريق">
+                            <i class="fas fa-user-plus" aria-hidden="true"></i>
+                            <span>إضافة للفريق بأمان</span>
+                        </button>
+                    </form>
                 </div>
                 
-                <div id="moderatorsList">
+                <div id="moderatorsList" role="region" aria-label="قائمة المشرفين">
                     <div class="no-files">لا يوجد مشرفون مسجلون في النظام</div>
                 </div>
             </div>
 
             <!-- Settings Tab -->
-            <div class="tab-content" id="settingsTab">
+            <div class="tab-content" id="settingsTab" role="tabpanel" aria-labelledby="settings-tab">
                 <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    ⚙️ إعدادات المكتبة
+                    ⚙️ الإعدادات الآمنة والمتقدمة
                 </h3>
                 
-                <div style="background: var(--bg-accent); padding: 25px; border-radius: 16px;">
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">الحد الأقصى لحجم الملف (ميجابايت):</label>
-                        <input type="number" id="maxFileSize" class="form-input" value="100" min="1" max="500">
+                <form onsubmit="event.preventDefault(); saveSettings();" novalidate>
+                    <div style="background: var(--bg-accent); padding: 25px; border-radius: 16px;">
+                        <div class="form-group">
+                            <label for="maxFileSize" class="form-label">الحد الأقصى لحجم الملف (ميجابايت):</label>
+                            <input type="number" 
+                                   id="maxFileSize" 
+                                   class="form-input" 
+                                   value="100" 
+                                   min="1" 
+                                   max="500"
+                                   required
+                                   aria-describedby="filesize-help">
+                            <small id="filesize-help" class="security-note">
+                                القيم المسموحة: 1-500 ميجابايت
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newAdminPassword" class="form-label">كلمة مرور الأدمن الجديدة:</label>
+                            <input type="password" 
+                                   id="newAdminPassword" 
+                                   class="form-input" 
+                                   placeholder="كلمة مرور قوية جديدة" 
+                                   minlength="12"
+                                   aria-describedby="admin-password-help">
+                            <small id="admin-password-help" class="security-note">
+                                12 حرف على الأقل مع مزيج من الأحرف والأرقام والرموز (اتركها فارغة للاحتفاظ بالحالية)
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="allowPublicView" checked>
+                                <span class="checkmark"></span>
+                                السماح بالعرض العام للكتب
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="enableSecurityLogging" checked>
+                                <span class="checkmark"></span>
+                                تفعيل تسجيل الأنشطة الأمنية
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="enableRateLimit" checked>
+                                <span class="checkmark"></span>
+                                تفعيل الحماية من الهجمات المتكررة
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="enableAutoBackup" checked>
+                                <span class="checkmark"></span>
+                                تفعيل النسخ الاحتياطي التلقائي
+                            </label>
+                        </div>
+                        
+                        <button type="submit" 
+                                class="btn btn-success" 
+                                data-action="save-settings"
+                                aria-label="حفظ جميع الإعدادات">
+                            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                            <span>حفظ الإعدادات بأمان</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Tab -->
+            <div class="tab-content" id="securityTab" role="tabpanel" aria-labelledby="security-tab">
+                <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
+                    🛡️ مراقبة الأمان والحماية المتقدمة
+                </h3>
+                
+                <div class="security-monitoring">
+                    <div class="security-card">
+                        <h4>📊 إحصائيات الأمان المباشرة</h4>
+                        <div id="securityStats" role="region" aria-live="polite">
+                            <div class="security-stat">
+                                <span class="stat-label">محاولات الدخول المشبوهة:</span>
+                                <span id="suspiciousAttempts" class="stat-value">0</span>
+                            </div>
+                            <div class="security-stat">
+                                <span class="stat-label">آخر فحص أمني:</span>
+                                <span id="lastSecurityCheck" class="stat-value">الآن</span>
+                            </div>
+                            <div class="security-stat">
+                                <span class="stat-label">حالة التشفير:</span>
+                                <span id="encryptionStatus" class="stat-value status-active">نشط</span>
+                            </div>
+                            <div class="security-stat">
+                                <span class="stat-label">مستوى الحماية:</span>
+                                <span id="protectionLevel" class="stat-value status-active">متقدم</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-info" onclick="app.runSecurityScan()" aria-label="تشغيل فحص أمني شامل">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                                <span>فحص أمني شامل</span>
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">كلمة مرور الأدمن الجديدة:</label>
-                        <input type="password" id="newAdminPassword" class="form-input" placeholder="اتركها فارغة للاحتفاظ بالحالية">
+                    <div class="security-card">
+                        <h4>🔍 سجل الأنشطة الأخيرة</h4>
+                        <div id="activityLog" role="log" aria-live="polite" aria-label="سجل الأنشطة الأمنية">
+                            <div class="log-entry">لا توجد أنشطة مسجلة</div>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-secondary" onclick="app.clearSecurityLog()" aria-label="مسح سجل الأنشطة">
+                                <i class="fas fa-trash" aria-hidden="true"></i>
+                                <span>مسح السجل</span>
+                            </button>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 10px; font-weight: 500;">
-                            <input type="checkbox" id="allowPublicView" checked style="transform: scale(1.2);">
-                            السماح بالعرض العام للكتب
-                        </label>
-                    </div>
-                    
-                    <button class="btn btn-success" onclick="saveSettings()">
-                        <i class="fas fa-save"></i>
-                        حفظ الإعدادات
-                    </button>
                 </div>
             </div>
 
             <!-- Backup Tab -->
-            <div class="tab-content" id="backupTab">
+            <div class="tab-content" id="backupTab" role="tabpanel" aria-labelledby="backup-tab">
                 <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    💾 النسخ الاحتياطي للمكتبة
+                    💾 النسخ الاحتياطي الآمن والمشفر
                 </h3>
                 
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <button class="btn btn-success" onclick="exportData()">
-                        <i class="fas fa-download"></i>
-                        تصدير بيانات المكتبة
+                    <button class="btn btn-success" 
+                            onclick="exportData()" 
+                            data-action="export"
+                            aria-label="تصدير جميع البيانات مشفرة">
+                        <i class="fas fa-download" aria-hidden="true"></i>
+                        <span>تصدير آمن للبيانات</span>
                     </button>
-                    <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">
-                        <i class="fas fa-upload"></i>
-                        استيراد بيانات المكتبة
+                    <button class="btn btn-warning" 
+                            onclick="document.getElementById('importFile').click()" 
+                            data-action="import"
+                            aria-label="استيراد بيانات من ملف مشفر">
+                        <i class="fas fa-upload" aria-hidden="true"></i>
+                        <span>استيراد بيانات مُتحقق منها</span>
                     </button>
-                    <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
+                    <input type="file" 
+                           id="importFile" 
+                           style="display: none;" 
+                           accept=".json" 
+                           onchange="importData(event)"
+                           aria-label="اختيار ملف النسخة الاحتياطية">
                 </div>
                 
                 <div style="background: var(--bg-accent); padding: 25px; border-radius: 16px;">
-                    <h4 style="margin-bottom: 15px;">📋 معلومات النسخة الاحتياطية:</h4>
-                    <ul style="line-height: 1.8; color: var(--text-secondary);">
-                        <li>يتم حفظ البيانات تلقائياً في التخزين المحلي للمتصفح</li>
-                        <li>يمكن تصدير جميع الكتب والإعدادات كملف JSON</li>
-                        <li>يمكن استيراد البيانات من ملف JSON احتياطي</li>
-                        <li>يُنصح بعمل نسخة احتياطية دورية لضمان سلامة البيانات</li>
+                    <h4 style="margin-bottom: 15px;">🔒 معلومات النسخة الاحتياطية الآمنة:</h4>
+                    <ul style="line-height: 1.8; color: var(--text-secondary);" role="list">
+                        <li>🔐 جميع البيانات مشفرة بتقنية AES-256 قبل التصدير</li>
+                        <li>✅ يتم التحقق من سلامة ونزاهة الملفات المستوردة</li>
+                        <li>🛡️ النسخ الاحتياطية محمية بكلمات مرور قوية</li>
+                        <li>📝 تسجيل جميع عمليات النسخ الاحتياطي في السجل الأمني</li>
+                        <li>🔍 فحص أمني شامل للملفات المستوردة قبل المعالجة</li>
+                        <li>⏰ نسخ احتياطي تلقائي كل 24 ساعة (عند التفعيل)</li>
+                        <li>🗂️ حفظ تاريخ كامل للنسخ الاحتياطية مع التوقيت</li>
                     </ul>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(5, 150, 105, 0.1); border-radius: 8px; border: 1px solid rgba(5, 150, 105, 0.3);">
+                        <strong style="color: var(--security-color);">💡 نصيحة أمنية:</strong>
+                        <p style="margin-top: 8px; font-size: 0.9rem;">
+                            يُنصح بعمل نسخة احتياطية دورية وحفظها في مكان آمن منفصل عن الخادم الرئيسي
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Files Section -->
-        <section class="files-section">
-            <h2 class="section-title">📖 مكتبة إقرأ معنا - الكتب المتاحة</h2>
+        <main class="files-section" role="main" aria-labelledby="files-title">
+            <h2 class="section-title" id="files-title">📖 مكتبة إقرأ معنا الآمنة - الكتب المتاحة</h2>
             
-            <div class="search-controls">
-                <input type="text" class="search-box" placeholder="🔍 ابحث في مكتبة إقرأ معنا..." 
-                       oninput="searchFiles(this.value)">
+            <div class="search-controls" role="search">
+                <label for="searchBox" class="sr-only">البحث في المكتبة</label>
+                <input type="text" 
+                       id="searchBox"
+                       class="search-box" 
+                       placeholder="🔍 ابحث بأمان في مكتبة إقرأ معنا..." 
+                       oninput="searchFiles(this.value)" 
+                       maxlength="100"
+                       aria-label="البحث في الكتب والملفات">
                 
-                <select class="sort-select" onchange="sortFiles(this.value)">
+                <label for="sortSelect" class="sr-only">ترتيب النتائج</label>
+                <select id="sortSelect" class="sort-select" onchange="sortFiles(this.value)" aria-label="ترتيب الكتب">
                     <option value="name-asc">ترتيب حسب الاسم (أ-ي)</option>
                     <option value="name-desc">ترتيب حسب الاسم (ي-أ)</option>
                     <option value="date-desc">الأحدث أولاً</option>
@@ -964,72 +532,233 @@
                 </select>
             </div>
             
-            <div class="files-grid" id="filesGrid">
-                <div class="no-files">
-                    <i class="fas fa-book-open" style="font-size: 3rem; margin-bottom: 20px; color: var(--primary-color);"></i>
+            <div class="files-grid" id="filesGrid" role="grid" aria-label="شبكة الكتب والملفات">
+                <div class="no-files" role="status">
+                    <i class="fas fa-shield-alt" style="font-size: 3rem; margin-bottom: 20px; color: var(--primary-color);" aria-hidden="true"></i>
                     <br>
-                    مرحباً بك في مكتبة إقرأ معنا!
+                    مرحباً بك في مكتبة إقرأ معنا الآمنة!
                     <br>
-                    لا توجد كتب متاحة حالياً، قم بتسجيل الدخول لإضافة كتب جديدة
+                    لا توجد كتب متاحة حالياً، قم بتسجيل الدخول الآمن لإضافة كتب جديدة
                 </div>
             </div>
-        </section>
+        </main>
     </div>
 
     <!-- Login Modal -->
-    <div class="modal" id="loginModal">
+    <div class="modal" id="loginModal" role="dialog" aria-labelledby="loginTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="loginTitle">تسجيل الدخول</h3>
+                <h3 class="modal-title" id="loginTitle">🔒 تسجيل الدخول الآمن</h3>
             </div>
             
-            <div class="form-group hidden" id="usernameGroup">
-                <input type="text" id="loginUsername" class="form-input" placeholder="اسم المستخدم">
-            </div>
+            <form onsubmit="event.preventDefault(); login();" novalidate>
+                <div class="form-group hidden" id="usernameGroup">
+                    <label for="loginUsername" class="form-label">اسم المستخدم:</label>
+                    <input type="text" 
+                           id="loginUsername" 
+                           class="form-input" 
+                           placeholder="اسم المستخدم" 
+                           maxlength="50" 
+                           autocomplete="username"
+                           aria-describedby="username-login-help">
+                    <small id="username-login-help" class="security-note">
+                        أدخل اسم المستخدم المخصص لك
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword" class="form-label">كلمة المرور:</label>
+                    <input type="password" 
+                           id="loginPassword" 
+                           class="form-input" 
+                           placeholder="كلمة المرور" 
+                           autocomplete="current-password"
+                           required
+                           aria-describedby="password-login-help">
+                    <small id="password-login-help" class="security-note">
+                        أدخل كلمة المرور الآمنة
+                    </small>
+                </div>
+                
+                <div class="security-info" role="note">
+                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                    <small>🔐 جميع البيانات مشفرة ومحمية بأحدث معايير الأمان</small>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="submit" 
+                            class="btn" 
+                            data-action="login"
+                            aria-label="تسجيل الدخول الآمن">
+                        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                        <span>دخول آمن</span>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-secondary" 
+                            onclick="closeLoginModal()" 
+                            data-action="cancel"
+                            aria-label="إلغاء تسجيل الدخول">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        <span>إلغاء</span>
+                    </button>
+                </div>
+            </form>
             
-            <div class="form-group">
-                <input type="password" id="loginPassword" class="form-input" placeholder="كلمة المرور">
-            </div>
-            
-            <div style="text-align: center;">
-                <button class="btn" onclick="login()">
-                    <i class="fas fa-sign-in-alt"></i>
-                    دخول
-                </button>
-                <button class="btn btn-secondary" onclick="closeLoginModal()">
-                    <i class="fas fa-times"></i>
-                    إلغاء
-                </button>
-            </div>
-            
-            <div id="loginMessage"></div>
+            <div id="loginMessage" role="alert" aria-live="assertive"></div>
         </div>
     </div>
 
     <!-- PDF Viewer -->
-    <div class="pdf-viewer" id="pdfViewer">
+    <div class="pdf-viewer" id="pdfViewer" role="dialog" aria-labelledby="pdfTitle" aria-hidden="true">
         <div class="pdf-header">
-            <h3 id="pdfTitle">📖 قارئ مكتبة إقرأ معنا</h3>
-            <div class="pdf-controls">
-                <button class="btn btn-secondary" onclick="printPdf()">
-                    <i class="fas fa-print"></i>
-                    طباعة
+            <h3 id="pdfTitle">📖 قارئ مكتبة إقرأ معنا الآمن</h3>
+            <div class="pdf-controls" role="toolbar" aria-label="أدوات عارض PDF">
+                <button class="btn btn-secondary" 
+                        onclick="printPdf()" 
+                        data-action="print"
+                        aria-label="طباعة الملف الحالي">
+                    <i class="fas fa-print" aria-hidden="true"></i>
+                    <span>طباعة آمنة</span>
                 </button>
-                <button class="btn btn-secondary" onclick="downloadCurrentPdf()">
-                    <i class="fas fa-download"></i>
-                    تحميل
+                <button class="btn btn-secondary" 
+                        onclick="downloadCurrentPdf()" 
+                        data-action="download"
+                        aria-label="تحميل الملف الحالي">
+                    <i class="fas fa-download" aria-hidden="true"></i>
+                    <span>تحميل آمن</span>
                 </button>
-                <button class="btn btn-danger" onclick="closePdfViewer()">
-                    <i class="fas fa-times"></i>
-                    إغلاق
+                <button class="btn btn-danger" 
+                        onclick="closePdfViewer()" 
+                        data-action="close"
+                        aria-label="إغلاق عارض PDF">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                    <span>إغلاق</span>
                 </button>
             </div>
         </div>
-        <iframe class="pdf-frame" id="pdfFrame"></iframe>
+        <iframe class="pdf-frame" 
+                id="pdfFrame" 
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                title="عارض PDF"
+                aria-label="محتوى الكتاب"></iframe>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;" role="status" aria-label="جاري التحميل">
+        <div class="loading-spinner">
+            <i class="fas fa-shield-alt fa-spin" aria-hidden="true"></i>
+            <p>جاري تحميل النظام الآمن...</p>
+        </div>
     </div>
 
     <!-- JavaScript -->
     <script src="script.js"></script>
+    
+    <!-- Security and Performance Scripts -->
+    <script>
+        // التحقق من تحميل السكريبت بأمان
+        document.addEventListener('DOMContentLoaded', function() {
+            // إظهار مؤشر التحميل
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'flex';
+            }
+            
+            // التحقق من تحميل النظام
+            setTimeout(() => {
+                if (typeof SecureDigitalLibrary === 'undefined') {
+                    console.error('Security Error: Main script failed to load');
+                    document.body.innerHTML = `
+                        <div style="text-align:center;padding:50px;color:red;font-family:Arial;">
+                            <h2>⚠️ خطأ في تحميل النظام الأمني</h2>
+                            <p>فشل في تحميل المكونات الأساسية للنظام</p>
+                            <button onclick="location.reload()" style="padding:10px 20px;margin-top:20px;">
+                                إعادة المحاولة
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    // إخفاء مؤشر التحميل
+                    if (loadingOverlay) {
+                        loadingOverlay.style.display = 'none';
+                    }
+                    console.log('✅ تم تحميل مكتبة إقرأ معنا الآمنة بنجاح');
+                }
+            }, 2000);
+        });
+
+        // منع النقر بالزر الأيمن في المناطق الحساسة
+        document.addEventListener('contextmenu', function(e) {
+            const sensitiveElements = ['admin-section', 'login-modal', 'security-status'];
+            if (sensitiveElements.some(className => e.target.closest('.' + className))) {
+                e.preventDefault();
+                console.log('🔒 تم منع النقر بالزر الأيمن لأسباب أمنية');
+            }
+        });
+
+        // منع اختصارات لوحة المفاتيح الخطيرة
+        document.addEventListener('keydown', function(e) {
+            // منع F12, Ctrl+Shift+I, Ctrl+U
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+                console.log('🔒 تم منع اختصار لوحة المفاتيح لأسباب أمنية');
+            }
+        });
+
+        // تحسين الأداء - Lazy Loading للصور
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+
+        // Service Worker للتخزين المؤقت (إذا كان متاحاً)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "إقرأ معنا - مكتبة رقمية آمنة",
+        "description": "مكتبة رقمية متطورة وآمنة لإدارة ومشاركة الكتب والملفات",
+        "url": "https://iqra-ma3na.github.io",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "فريق إقرأ معنا"
+        }
+    }
+    </script>
 </body>
 </html>
-
