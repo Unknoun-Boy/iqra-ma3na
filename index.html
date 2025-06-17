@@ -3,823 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Content Security Policy للحماية من XSS -->
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
-        font-src https://fonts.gstatic.com;
-        img-src 'self' data: blob:;
-        connect-src 'self' https://mega.nz https://httpbin.org;
-        frame-src 'self' blob: https://mega.nz;
-        object-src 'none';
-        base-uri 'self';
-        form-action 'self';
-    ">
-    
-    <!-- Headers أمنية إضافية -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    
-    <title>إقرأ معنا | مكتبتك الرقمية الآمنة مع MEGA</title>
-    <meta name="description" content="مكتبة رقمية آمنة ومتطورة لإدارة ومشاركة الكتب والملفات مع تخزين MEGA السحابي المحمي">
-    <meta name="keywords" content="مكتبة, كتب, PDF, قراءة, تعليم, إقرأ معنا, آمن, MEGA, تخزين سحابي">
-    <meta name="author" content="فريق إقرأ معنا">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="إقرأ معنا - مكتبتك الرقمية الآمنة مع MEGA">
-    <meta property="og:description" content="اكتشف عالم المعرفة مع مكتبتنا الرقمية المتطورة والآمنة المدعومة بـ MEGA">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒📚</text></svg>">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒📚</text></svg>">
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome مع التحقق من النزاهة -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
-          integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" 
-          crossorigin="anonymous" 
-          referrerpolicy="no-referrer">
-    
-    <!-- CSS -->
+    <title>📚 مكتبة إقرأ معنا - قراءة مجانية للجميع</title>
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="script.js" as="script">
-    <link rel="preload" href="styles.css" as="style">
-    
-    <!-- حماية من DevTools وتسريب المعلومات الحساسة -->
-    <script>
-        // منع فحص كلمة المرور من console
-        const originalConsole = console.log;
-        console.log = function(...args) {
-            const message = args.join(' ').toLowerCase();
-            if (message.includes('password') || 
-                message.includes('admin') ||
-                message.includes('mega') ||
-                message.includes('credential')) {
-                return;
-            }
-            originalConsole.apply(console, args);
-        };
-
-        // حماية من DevTools
-        let devtools = {open: false, orientation: null};
-        const threshold = 160;
-        setInterval(() => {
-            if (window.outerHeight - window.innerHeight > threshold || 
-                window.outerWidth - window.innerWidth > threshold) {
-                devtools.open = true;
-                devtools.orientation = window.outerHeight - window.innerHeight > threshold ? 'vertical' : 'horizontal';
-                document.body.style.display = 'none';
-                document.body.innerHTML = '<div style="text-align:center;padding:100px;font-size:2rem;color:#dc2626;font-family:Arial;">🔒 وضع الحماية نشط<br><small style="font-size:1rem;">يرجى إغلاق أدوات المطور</small></div>';
-            } else {
-                if (devtools.open) {
-                    location.reload();
-                }
-                devtools.open = false;
-            }
-        }, 500);
-
-        // منع النقر بالزر الأيمن
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        });
-
-        // منع اختصارات لوحة المفاتيح الخطيرة
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                (e.ctrlKey && e.key === 'u') ||
-                (e.ctrlKey && e.key === 's')) {
-                e.preventDefault();
-                return false;
-            }
-        });
-
-        // حماية Object من التلاعب
-        Object.freeze(Object.prototype);
-        Object.freeze(Array.prototype);
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Security Status Indicator -->
-        <div class="security-status" id="securityStatus">
-            <i class="fas fa-shield-alt" aria-hidden="true"></i>
-            <span>النظام آمن ومحمي مع MEGA</span>
-        </div>
+    <!-- مؤشر الأمان -->
+    <div class="security-status">
+        🔒 نظام آمن مع MEGA
+    </div>
 
-        <!-- Header -->
-        <header class="header" role="banner">
+    <!-- حالة الاتصال بـ MEGA -->
+    <div class="cloud-status" id="cloudStatusContainer">
+        <span id="cloudStatusIcon">⏳</span>
+        <div id="cloudStatus">جاري الاتصال بـ MEGA...</div>
+    </div>
+
+    <div class="container">
+        <!-- الرأس -->
+        <header class="header">
             <div class="header-content">
                 <div class="logo">
-                    <h1 id="mainTitle">🔒📚 إقرأ معنا</h1>
-                    <p class="tagline">مكتبتك الرقمية الآمنة مع MEGA Cloud</p>
-                    <div class="subtitle">منصة محسنة بأحدث معايير الأمان الرقمي مع تخزين MEGA السحابي المحمي</div>
+                    <h1>📚 مكتبة إقرأ معنا</h1>
+                    <p class="tagline">📖 قراءة مجانية للجميع - تخزين آمن مع MEGA</p>
+                    <p class="subtitle">استمتع بقراءة الكتب مجاناً | إدارة آمنة للمشرفين</p>
                 </div>
-                
-                <nav class="auth-section" role="navigation" aria-label="تسجيل الدخول">
-                    <button class="auth-btn" 
-                            onclick="showLoginModal('admin')" 
-                            data-action="admin-login"
-                            aria-label="دخول الأدمن الآمن">
-                        <i class="fas fa-shield-alt" aria-hidden="true"></i>
-                        <span>دخول الأدمن الآمن</span>
+                <div class="auth-section">
+                    <button class="auth-btn" onclick="showLoginModal('admin')">
+                        <i class="fas fa-user-shield"></i>
+                        دخول الأدمن
                     </button>
-                    <button class="auth-btn" 
-                            onclick="showLoginModal('moderator')" 
-                            data-action="moderator-login"
-                            aria-label="دخول المشرفين">
-                        <i class="fas fa-user-shield" aria-hidden="true"></i>
-                        <span>دخول المشرفين</span>
+                    <button class="auth-btn" onclick="showLoginModal('moderator')">
+                        <i class="fas fa-user-edit"></i>
+                        دخول المشرف
                     </button>
-                    <button class="auth-btn logout-btn" 
-                            id="logoutBtn" 
-                            onclick="logout()" 
-                            style="display: none;"
-                            aria-label="تسجيل الخروج الآمن">
-                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-                        <span>تسجيل الخروج الآمن</span>
+                    <button class="auth-btn logout-btn" onclick="logout()" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        تسجيل خروج آمن
                     </button>
-                </nav>
+                </div>
             </div>
         </header>
 
-        <!-- Statistics Section -->
-        <section class="stats-section" role="region" aria-labelledby="stats-title">
-            <h2 class="stats-title" id="stats-title">📊 إحصائيات مكتبة إقرأ معنا الآمنة مع MEGA</h2>
-            <div class="stats-grid" role="group">
-                <div class="stat-card" role="img" aria-label="إجمالي الكتب">
-                    <div class="stat-icon" aria-hidden="true">📚</div>
-                    <div class="stat-number" id="totalBooks" aria-live="polite">0</div>
-                    <div class="stat-label">إجمالي الكتب في MEGA</div>
+        <!-- الإحصائيات -->
+        <section class="stats-section">
+            <h2 class="stats-title">📊 إحصائيات المكتبة</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-number" id="totalBooks">0</div>
+                    <div class="stat-label">إجمالي الكتب</div>
                 </div>
-                <div class="stat-card" role="img" aria-label="حجم المكتبة">
-                    <div class="stat-icon" aria-hidden="true">💾</div>
-                    <div class="stat-number" id="totalSize" aria-live="polite">0 MB</div>
-                    <div class="stat-label">حجم المكتبة</div>
+                <div class="stat-card">
+                    <div class="stat-icon">💾</div>
+                    <div class="stat-number" id="totalSize">0 بايت</div>
+                    <div class="stat-label">مساحة مستخدمة</div>
                 </div>
-                <div class="stat-card" role="img" aria-label="فريق الإدارة">
-                    <div class="stat-icon" aria-hidden="true">👥</div>
-                    <div class="stat-number" id="totalModerators" aria-live="polite">0</div>
-                    <div class="stat-label">فريق الإدارة</div>
+                <div class="stat-card">
+                    <div class="stat-icon mega-status">☁️</div>
+                    <div class="stat-number mega-status" id="megaStatus">MEGA</div>
+                    <div class="stat-label">التخزين السحابي</div>
                 </div>
-                <div class="stat-card" role="img" aria-label="حالة MEGA">
-                    <div class="stat-icon mega-status" id="cloudStatusIcon" aria-hidden="true">☁️</div>
-                    <div class="stat-number" id="cloudStatus" aria-live="polite">جاري الاتصال بـ MEGA...</div>
-                    <div class="stat-label">MEGA Cloud Storage</div>
-                </div>
-                <div class="stat-card" role="img" aria-label="مستوى الأمان">
-                    <div class="stat-icon" aria-hidden="true">🔐</div>
-                    <div class="stat-number" id="securityLevel" aria-live="polite">AAA</div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔒</div>
+                    <div class="stat-number" id="securityLevel">AAA</div>
                     <div class="stat-label">مستوى الأمان</div>
                 </div>
-                <div class="stat-card" role="img" aria-label="آخر إضافة">
-                    <div class="stat-icon" aria-hidden="true">🆕</div>
-                    <div class="stat-number" id="lastUpload" aria-live="polite">-</div>
-                    <div class="stat-label">آخر إضافة</div>
-                </div>
             </div>
         </section>
 
-        <!-- Admin Section -->
-        <section class="admin-section" id="adminSection" role="region" aria-labelledby="admin-title">
+        <!-- قسم الإدارة -->
+        <section class="admin-section" id="adminSection">
             <div class="admin-header">
-                <h2 id="admin-title">🛡️ لوحة إدارة مكتبة إقرأ معنا الآمنة مع MEGA</h2>
-                <p>إدارة متقدمة مع أحدث معايير الأمان الرقمي وتخزين MEGA السحابي المحمي</p>
+                <h2>🛡️ لوحة التحكم الآمنة</h2>
+                <p>إدارة متقدمة مع تشفير وحماية MEGA</p>
             </div>
 
-            <nav class="admin-tabs" role="tablist" aria-label="تبويبات الإدارة">
-                <button class="tab-btn active" 
-                        onclick="switchTab('books')" 
-                        data-tab="books"
-                        role="tab"
-                        aria-selected="true"
-                        aria-controls="booksTab"
-                        id="books-tab">
-                    <i class="fas fa-book" aria-hidden="true"></i>
-                    <span>إدارة الكتب - MEGA</span>
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    رفع كتاب جديد
                 </button>
-                <button class="tab-btn" 
-                        onclick="switchTab('moderators')" 
-                        id="moderatorsTabBtn" 
-                        style="display: none;" 
-                        data-tab="moderators"
-                        role="tab"
-                        aria-selected="false"
-                        aria-controls="moderatorsTab">
-                    <i class="fas fa-users" aria-hidden="true"></i>
-                    <span>إدارة المشرفين</span>
+                <button class="tab-btn" data-tab="moderators" onclick="switchTab('moderators')" id="moderatorsTabBtn">
+                    <i class="fas fa-users"></i>
+                    إدارة المشرفين
                 </button>
-                <button class="tab-btn" 
-                        onclick="switchTab('settings')" 
-                        id="settingsTabBtn" 
-                        style="display: none;" 
-                        data-tab="settings"
-                        role="tab"
-                        aria-selected="false"
-                        aria-controls="settingsTab">
-                    <i class="fas fa-cog" aria-hidden="true"></i>
-                    <span>الإعدادات الآمنة</span>
+                <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')" id="settingsTabBtn">
+                    <i class="fas fa-cog"></i>
+                    إعدادات النظام
                 </button>
-                <button class="tab-btn" 
-                        onclick="switchTab('security')" 
-                        id="securityTabBtn" 
-                        style="display: none;" 
-                        data-tab="security"
-                        role="tab"
-                        aria-selected="false"
-                        aria-controls="securityTab">
-                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
-                    <span>مراقبة الأمان</span>
-                </button>
-                <button class="tab-btn" 
-                        onclick="switchTab('backup')" 
-                        data-tab="backup"
-                        role="tab"
-                        aria-selected="false"
-                        aria-controls="backupTab">
-                    <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
-                    <span>النسخ الاحتياطي MEGA</span>
-                </button>
-            </nav>
+            </div>
 
-            <!-- Books Management Tab -->
-            <div class="tab-content active" id="booksTab" role="tabpanel" aria-labelledby="books-tab">
-                <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    📚 إضافة كتاب جديد إلى حساب MEGA الخاص بك
-                </h3>
-                
-                <div class="upload-area" 
-                     onclick="document.getElementById('fileInput').click()" 
-                     ondrop="handleDrop(event)" 
-                     ondragover="handleDragOver(event)" 
-                     ondragleave="handleDragLeave(event)"
-                     role="button"
-                     tabindex="0"
-                     aria-label="منطقة رفع الملفات إلى MEGA - اسحب ملف PDF هنا أو انقر للاختيار"
-                     onkeydown="if(event.key==='Enter'||event.key===' ') document.getElementById('fileInput').click()">
-                    <div class="upload-icon" aria-hidden="true">🔒📄</div>
-                    <div class="upload-text">اسحب ملف PDF هنا أو انقر للاختيار</div>
-                    <div class="upload-subtext">
-                        يدعم ملفات PDF فقط - الحد الأقصى: 100 ميجابايت
-                        <br>
-                        <small style="color: #D50000; font-weight: 600;">🔴 سيتم رفعه مباشرة إلى حساب MEGA: abdelrahmenkeb+10@gmail.com</small>
-                    </div>
+            <div class="tab-content active" id="uploadTab">
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()"
+                     ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">☁️</div>
+                    <div class="upload-text">اسحب وأفلت ملف PDF هنا أو انقر للاختيار</div>
+                    <div class="upload-subtext">سيتم رفع الملف مباشرة إلى حساب MEGA الآمن<br>الحد الأقصى: 100 ميجابايت</div>
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf" onchange="handleFileSelect(event)">
                 </div>
-                
-                <input type="file" 
-                       id="fileInput" 
-                       class="file-input" 
-                       accept=".pdf" 
-                       onchange="handleFileSelect(event)"
-                       aria-label="اختيار ملف PDF للرفع إلى MEGA">
-                
+
                 <div class="form-group hidden" id="fileNameGroup">
-                    <label for="fileNameInput" class="form-label">عنوان الكتاب:</label>
-                    <input type="text" 
-                           id="fileNameInput" 
-                           class="form-input" 
-                           placeholder="عنوان الكتاب" 
-                           maxlength="100" 
-                           pattern="[a-zA-Z0-9\u0600-\u06FF\s._-]+"
-                           aria-describedby="filename-help">
-                    <small id="filename-help" class="security-note">
-                        يُسمح بالأحرف العربية والإنجليزية والأرقام والرموز الآمنة فقط
-                    </small>
+                    <label for="fileNameInput" class="form-label">📝 اسم الكتاب:</label>
+                    <input type="text" id="fileNameInput" class="form-input" placeholder="أدخل اسم الكتاب...">
                 </div>
-                
-                <div class="progress-container" id="progressContainer" role="progressbar" aria-live="polite">
+
+                <button class="btn mega-btn" id="uploadBtn" onclick="uploadFile()" disabled>
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    رفع إلى MEGA الآمن
+                </button>
+
+                <div class="progress-container" id="progressContainer">
                     <div class="progress-bar" id="progressBar">0%</div>
                 </div>
-                
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="btn mega-btn" 
-                            id="uploadBtn" 
-                            onclick="uploadFile()" 
-                            disabled 
-                            data-action="upload"
-                            aria-label="رفع الكتاب بأمان إلى MEGA">
-                        <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
-                        <span>رفع آمن إلى MEGA</span>
-                    </button>
-                    <button class="btn btn-secondary" 
-                            onclick="clearSelection()" 
-                            data-action="clear"
-                            aria-label="إلغاء التحديد">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                        <span>إلغاء</span>
-                    </button>
-                    <button class="btn btn-info" 
-                            onclick="reconnectCloud()" 
-                            data-action="reconnect"
-                            aria-label="إعادة الاتصال بـ MEGA">
-                        <i class="fas fa-sync-alt" aria-hidden="true"></i>
-                        <span>إعادة الاتصال بـ MEGA</span>
-                    </button>
-                </div>
-                
-                <div id="statusMessage" role="alert" aria-live="assertive"></div>
             </div>
 
-            <!-- Moderators Management Tab -->
-            <div class="tab-content" id="moderatorsTab" role="tabpanel" aria-labelledby="moderators-tab">
-                <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    👥 إدارة فريق العمل بأمان متقدم
-                </h3>
-                
-                <div style="background: var(--bg-accent); padding: 25px; border-radius: 16px; margin-bottom: 25px;">
-                    <h4 style="margin-bottom: 20px;">إضافة مشرف جديد</h4>
-                    <form onsubmit="event.preventDefault(); addModerator();" novalidate>
-                        <div class="form-group">
-                            <label for="newModUsername" class="form-label">اسم المستخدم:</label>
-                            <input type="text" 
-                                   id="newModUsername" 
-                                   class="form-input" 
-                                   placeholder="اسم المستخدم" 
-                                   maxlength="50" 
-                                   pattern="[a-zA-Z0-9_-]+"
-                                   required
-                                   aria-describedby="username-help">
-                            <small id="username-help" class="security-note">
-                                أحرف إنجليزية وأرقام و_ و- فقط (3-50 حرف)
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <label for="newModPassword" class="form-label">كلمة المرور:</label>
-                            <input type="password" 
-                                   id="newModPassword" 
-                                   class="form-input" 
-                                   placeholder="كلمة مرور قوية" 
-                                   minlength="8"
-                                   required
-                                   aria-describedby="password-help">
-                            <small id="password-help" class="security-note">
-                                8 أحرف على الأقل مع مزيج من الأحرف الكبيرة والصغيرة والأرقام والرموز
-                            </small>
-                        </div>
-                        <button type="submit" 
-                                class="btn btn-success" 
-                                data-action="add-moderator"
-                                aria-label="إضافة مشرف جديد للفريق">
-                            <i class="fas fa-user-plus" aria-hidden="true"></i>
-                            <span>إضافة للفريق بأمان</span>
-                        </button>
-                    </form>
+            <div class="tab-content" id="moderatorsTab">
+                <h3>👥 إضافة مشرف جديد</h3>
+                <div class="form-group">
+                    <label for="newModUsername" class="form-label">👤 اسم المستخدم:</label>
+                    <input type="text" id="newModUsername" class="form-input" placeholder="اسم مستخدم فريد...">
                 </div>
-                
-                <div id="moderatorsList" role="region" aria-label="قائمة المشرفين">
-                    <div class="no-files">لا يوجد مشرفون مسجلون في النظام</div>
+                <div class="form-group">
+                    <label for="newModPassword" class="form-label">🔐 كلمة المرور:</label>
+                    <input type="password" id="newModPassword" class="form-input" placeholder="كلمة مرور قوية...">
                 </div>
+                <button class="btn btn-success" onclick="addModerator()">
+                    <i class="fas fa-user-plus"></i>
+                    إضافة مشرف آمن
+                </button>
+
+                <h3 style="margin-top: 2rem;">📋 قائمة المشرفين</h3>
+                <div id="moderatorsList"></div>
             </div>
 
-            <!-- Settings Tab -->
-            <div class="tab-content" id="settingsTab" role="tabpanel" aria-labelledby="settings-tab">
-                <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    ⚙️ الإعدادات الآمنة والمتقدمة مع MEGA
-                </h3>
-                
-                <form onsubmit="event.preventDefault(); saveSettings();" novalidate>
-                    <div style="background: var(--bg-accent); padding: 25px; border-radius: 16px;">
-                        <div class="form-group">
-                            <label for="maxFileSize" class="form-label">الحد الأقصى لحجم الملف (ميجابايت):</label>
-                            <input type="number" 
-                                   id="maxFileSize" 
-                                   class="form-input" 
-                                   value="100" 
-                                   min="1" 
-                                   max="500"
-                                   required
-                                   aria-describedby="filesize-help">
-                            <small id="filesize-help" class="security-note">
-                                القيم المسموحة: 1-500 ميجابايت لحساب MEGA المجاني
-                            </small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="newAdminPassword" class="form-label">كلمة مرور الأدمن الجديدة:</label>
-                            <input type="password" 
-                                   id="newAdminPassword" 
-                                   class="form-input" 
-                                   placeholder="كلمة مرور قوية جديدة" 
-                                   minlength="12"
-                                   aria-describedby="admin-password-help">
-                            <small id="admin-password-help" class="security-note">
-                                12 حرف على الأقل مع مزيج من الأحرف والأرقام والرموز (اتركها فارغة للاحتفاظ بالحالية)
-                            </small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="allowPublicView" checked>
-                                <span class="checkmark"></span>
-                                السماح بالعرض العام للكتب من MEGA
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="enableSecurityLogging" checked>
-                                <span class="checkmark"></span>
-                                تفعيل تسجيل الأنشطة الأمنية
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="enableRateLimit" checked>
-                                <span class="checkmark"></span>
-                                تفعيل الحماية من الهجمات المتكررة
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="enableAutoBackup" checked>
-                                <span class="checkmark"></span>
-                                تفعيل النسخ الاحتياطي التلقائي في MEGA
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="enableCloudStorage" checked disabled>
-                                <span class="checkmark"></span>
-                                تخزين MEGA السحابي (مفعل دائماً)
-                            </label>
-                        </div>
-                        
-                        <button type="submit" 
-                                class="btn btn-success" 
-                                data-action="save-settings"
-                                aria-label="حفظ جميع الإعدادات">
-                            <i class="fas fa-shield-alt" aria-hidden="true"></i>
-                            <span>حفظ الإعدادات بأمان</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Security Tab -->
-            <div class="tab-content" id="securityTab" role="tabpanel" aria-labelledby="security-tab">
-                <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    🛡️ مراقبة الأمان والحماية المتقدمة مع MEGA
-                </h3>
-                
-                <div class="security-monitoring">
-                    <div class="security-card">
-                        <h4>📊 إحصائيات الأمان المباشرة</h4>
-                        <div id="securityStats" role="region" aria-live="polite">
-                            <div class="security-stat">
-                                <span class="stat-label">محاولات الدخول المشبوهة:</span>
-                                <span id="suspiciousAttempts" class="stat-value">0</span>
-                            </div>
-                            <div class="security-stat">
-                                <span class="stat-label">آخر فحص أمني:</span>
-                                <span id="lastSecurityCheck" class="stat-value">الآن</span>
-                            </div>
-                            <div class="security-stat">
-                                <span class="stat-label">حالة التشفير:</span>
-                                <span id="encryptionStatus" class="stat-value status-active">متقدم</span>
-                            </div>
-                            <div class="security-stat">
-                                <span class="stat-label">حالة MEGA:</span>
-                                <span id="cloudStorageStatus" class="stat-value status-active">متصل ومحمي</span>
-                            </div>
-                            <div class="security-stat">
-                                <span class="stat-label">مستوى الحماية:</span>
-                                <span id="protectionLevel" class="stat-value status-active">أقصى</span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 20px;">
-                            <button class="btn btn-info" onclick="app.runSecurityScan()" aria-label="تشغيل فحص أمني شامل">
-                                <i class="fas fa-search" aria-hidden="true"></i>
-                                <span>فحص أمني شامل</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="security-card">
-                        <h4>🔍 سجل الأنشطة الأخيرة</h4>
-                        <div id="activityLog" role="log" aria-live="polite" aria-label="سجل الأنشطة الأمنية">
-                            <div class="log-entry">لا توجد أنشطة مسجلة</div>
-                        </div>
-                        
-                        <div style="margin-top: 15px;">
-                            <button class="btn btn-secondary" onclick="app.clearSecurityLog()" aria-label="مسح سجل الأنشطة">
-                                <i class="fas fa-trash" aria-hidden="true"></i>
-                                <span>مسح السجل</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Backup Tab -->
-            <div class="tab-content" id="backupTab" role="tabpanel" aria-labelledby="backup-tab">
-                <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    💾 النسخ الاحتياطي في MEGA Cloud الآمن
-                </h3>
-                
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <button class="btn btn-success" 
-                            onclick="exportData()" 
-                            data-action="export"
-                            aria-label="تصدير جميع البيانات مشفرة">
-                        <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
-                        <span>تصدير آمن من MEGA</span>
-                    </button>
-                    <button class="btn btn-warning" 
-                            onclick="document.getElementById('importFile').click()" 
-                            data-action="import"
-                            aria-label="استيراد بيانات من ملف مشفر">
-                        <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
-                        <span>استيراد إلى MEGA الآمن</span>
-                    </button>
-                    <button class="btn mega-btn" 
-                            onclick="reconnectCloud()" 
-                            data-action="reconnect"
-                            aria-label="إعادة الاتصال بـ MEGA">
-                        <i class="fas fa-sync-alt" aria-hidden="true"></i>
-                        <span>إعادة الاتصال بـ MEGA</span>
-                    </button>
-                    <input type="file" 
-                           id="importFile" 
-                           style="display: none;" 
-                           accept=".json" 
-                           onchange="importData(event)"
-                           aria-label="اختيار ملف النسخة الاحتياطية">
-                </div>
-                
-                <div style="background: var(--bg-accent); padding: 25px; border-radius: 16px;">
-                    <h4 style="margin-bottom: 15px;">🔒 معلومات النسخة الاحتياطية في MEGA:</h4>
-                    <ul style="line-height: 1.8; color: var(--text-secondary);" role="list">
-                        <li>🔴 <strong>حساب MEGA:</strong> abdelrahmenkeb+10@gmail.com</li>
-                        <li>🔐 جميع البيانات مشفرة بتقنية متقدمة قبل الرفع إلى MEGA</li>
-                        <li>☁️ التخزين السحابي MEGA مع تشفير من طرف إلى طرف</li>
-                        <li>✅ يتم التحقق من سلامة ونزاهة الملفات المستوردة</li>
-                        <li>🛡️ النسخ الاحتياطية محمية بكلمات مرور قوية</li>
-                        <li>📝 تسجيل جميع عمليات النسخ الاحتياطي في السجل الأمني</li>
-                        <li>🔍 فحص أمني شامل للملفات المستوردة قبل المعالجة</li>
-                        <li>⏰ نسخ احتياطي تلقائي كل 3 كتب مضافة إلى MEGA</li>
-                        <li>🗂️ حفظ تاريخ كامل للنسخ الاحتياطية مع التوقيت</li>
-                        <li>🌐 إمكانية الوصول من أي مكان بأمان تام عبر MEGA</li>
-                        <li>📊 مراقبة استخدام مساحة MEGA والتنبيه عند امتلاؤها</li>
-                    </ul>
-                    
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(213, 0, 0, 0.1); border-radius: 8px; border: 1px solid rgba(213, 0, 0, 0.3);">
-                        <strong style="color: #D50000;">💡 معلومات MEGA:</strong>
-                        <p style="margin-top: 8px; font-size: 0.9rem;">
-                            جميع ملفاتك محفوظة بأمان في حساب MEGA الخاص بك مع تشفير متقدم وحماية شاملة.
-                            المساحة المجانية: 15 جيجابايت
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Files Section -->
-        <main class="files-section" role="main" aria-labelledby="files-title">
-            <h2 class="section-title" id="files-title">📖 مكتبة إقرأ معنا الآمنة - الكتب المحفوظة في MEGA</h2>
-            
-            <div class="search-controls" role="search">
-                <label for="searchBox" class="sr-only">البحث في المكتبة</label>
-                <input type="text" 
-                       id="searchBox"
-                       class="search-box" 
-                       placeholder="🔍 ابحث بأمان في مكتبة إقرأ معنا من MEGA..." 
-                       oninput="searchFiles(this.value)" 
-                       maxlength="100"
-                       aria-label="البحث في الكتب والملفات المحفوظة في MEGA">
-                
-                <label for="sortSelect" class="sr-only">ترتيب النتائج</label>
-                <select id="sortSelect" class="sort-select" onchange="sortFiles(this.value)" aria-label="ترتيب الكتب">
-                    <option value="name-asc">ترتيب حسب الاسم (أ-ي)</option>
-                    <option value="name-desc">ترتيب حسب الاسم (ي-أ)</option>
-                    <option value="date-desc">الأحدث أولاً</option>
-                    <option value="date-asc">الأقدم أولاً</option>
-                    <option value="size-desc">الأكبر حجماً أولاً</option>
-                    <option value="size-asc">الأصغر حجماً أولاً</option>
-                </select>
-            </div>
-            
-            <div class="files-grid" id="filesGrid" role="grid" aria-label="شبكة الكتب والملفات من MEGA">
-                <div class="no-files" role="status">
-                    <i class="fas fa-cloud" style="font-size: 3rem; margin-bottom: 20px; color: #D50000;" aria-hidden="true"></i>
-                    <br>
-                    مرحباً بك في مكتبة إقرأ معنا الآمنة!
-                    <br>
-                    لا توجد كتب متاحة حالياً، قم بتسجيل الدخول الآمن لإضافة كتب جديدة
-                    <br>
-                    <small style="color: #D50000; font-weight: 500;">جميع الكتب محفوظة بأمان في حساب MEGA الخاص بك</small>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Login Modal -->
-    <div class="modal" id="loginModal" role="dialog" aria-labelledby="loginTitle" aria-hidden="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="loginTitle">🔒 تسجيل الدخول الآمن لإدارة MEGA</h3>
-            </div>
-            
-            <form onsubmit="event.preventDefault(); login();" novalidate>
-                <div class="form-group hidden" id="usernameGroup">
-                    <label for="loginUsername" class="form-label">اسم المستخدم:</label>
-                    <input type="text" 
-                           id="loginUsername" 
-                           class="form-input" 
-                           placeholder="اسم المستخدم" 
-                           maxlength="50" 
-                           autocomplete="username"
-                           aria-describedby="username-login-help">
-                    <small id="username-login-help" class="security-note">
-                        أدخل اسم المستخدم المخصص لك
-                    </small>
+            <div class="tab-content" id="settingsTab">
+                <h3>⚙️ إعدادات النظام</h3>
+                <div class="form-group">
+                    <label for="maxFileSize" class="form-label">📊 الحد الأقصى لحجم الملف (ميجابايت):</label>
+                    <input type="number" id="maxFileSize" class="form-input" value="100" min="1" max="500">
                 </div>
                 
                 <div class="form-group">
-                    <label for="loginPassword" class="form-label">كلمة المرور:</label>
-                    <input type="password" 
-                           id="loginPassword" 
-                           class="form-input" 
-                           placeholder="كلمة المرور" 
-                           autocomplete="current-password"
-                           required
-                           aria-describedby="password-login-help">
-                    <small id="password-login-help" class="security-note">
-                        أدخل كلمة المرور الآمنة (الأدمن: admin123)
-                    </small>
+                    <label for="newAdminPassword" class="form-label">🔐 تغيير كلمة مرور الأدمن:</label>
+                    <input type="password" id="newAdminPassword" class="form-input" placeholder="كلمة مرور جديدة (اختياري)...">
                 </div>
-                
-                <div class="security-info" role="note" style="background: rgba(213, 0, 0, 0.1); border: 1px solid rgba(213, 0, 0, 0.3);">
-                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
-                    <small>🔐 جميع البيانات مشفرة ومحمية بأحدث معايير الأمان مع MEGA</small>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="allowPublicView" checked>
+                        <span class="checkmark"></span>
+                        السماح للزوار بمشاهدة الكتب
+                    </label>
                 </div>
-                
-                <div style="text-align: center; margin-top: 20px;">
-                    <button type="submit" 
-                            class="btn mega-btn" 
-                            data-action="login"
-                            aria-label="تسجيل الدخول الآمن">
-                        <i class="fas fa-shield-alt" aria-hidden="true"></i>
-                        <span>دخول آمن للـ MEGA</span>
-                    </button>
-                    <button type="button" 
-                            class="btn btn-secondary" 
-                            onclick="closeLoginModal()" 
-                            data-action="cancel"
-                            aria-label="إلغاء تسجيل الدخول">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                        <span>إلغاء</span>
-                    </button>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="enableSecurityLogging" checked>
+                        <span class="checkmark"></span>
+                        تفعيل سجل الأمان
+                    </label>
                 </div>
-            </form>
+
+                <button class="btn mega-btn" onclick="saveSettings()">
+                    <i class="fas fa-save"></i>
+                    حفظ في MEGA الآمن
+                </button>
+
+                <div class="security-info">
+                    <i class="fas fa-info-circle"></i>
+                    جميع الإعدادات محفوظة بأمان في حساب MEGA مع تشفير متقدم
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم عرض الكتب -->
+        <section class="files-section">
+            <h2 class="section-title">📖 مكتبة إقرأ معنا المفتوحة</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+                📚 اقرأ واستمتع بالكتب مجاناً - 🔒 إدارة آمنة للمشرفين
+            </p>
+
+            <div class="search-controls">
+                <input type="text" class="search-box" placeholder="🔍 ابحث في المكتبة..." 
+                       onkeyup="searchFiles(this.value)">
+                <select class="sort-select" onchange="sortFiles(this.value)">
+                    <option value="name-asc">📝 الاسم (أ-ي)</option>
+                    <option value="name-desc">📝 الاسم (ي-أ)</option>
+                    <option value="date-desc">📅 الأحدث أولاً</option>
+                    <option value="date-asc">📅 الأقدم أولاً</option>
+                    <option value="size-desc">📊 الأكبر حجماً</option>
+                    <option value="size-asc">📊 الأصغر حجماً</option>
+                </select>
+            </div>
+
+            <div id="filesGrid" class="files-grid">
+                <div class="no-files">
+                    <i class="fas fa-book-open" style="font-size: 3rem; margin-bottom: 20px; color: #0891B2;"></i>
+                    <br>📚 لا توجد كتب حالياً في المكتبة
+                    <br><small>🔒 المشرفون فقط يمكنهم إضافة كتب جديدة</small>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- نافذة تسجيل الدخول -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="loginTitle">🔒 تسجيل دخول آمن</h3>
+            </div>
             
-            <div id="loginMessage" role="alert" aria-live="assertive"></div>
+            <div class="form-group" id="usernameGroup">
+                <label for="loginUsername" class="form-label">👤 اسم المستخدم:</label>
+                <input type="text" id="loginUsername" class="form-input" placeholder="أدخل اسم المستخدم...">
+            </div>
+            
+            <div class="form-group">
+                <label for="loginPassword" class="form-label">🔐 كلمة المرور:</label>
+                <input type="password" id="loginPassword" class="form-input" placeholder="أدخل كلمة المرور...">
+            </div>
+            
+            <div id="loginMessage" class="status-message" style="display: none;"></div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn mega-btn" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i>
+                    دخول آمن
+                </button>
+                <button class="btn btn-secondary" onclick="closeLoginModal()">
+                    <i class="fas fa-times"></i>
+                    إلغاء
+                </button>
+            </div>
+
+            <div class="security-info" style="margin-top: 1rem;">
+                <i class="fas fa-shield-alt"></i>
+                تسجيل دخول آمن مع تشفير متقدم وحماية MEGA
+            </div>
         </div>
     </div>
 
-    <!-- PDF Viewer -->
-    <div class="pdf-viewer" id="pdfViewer" role="dialog" aria-labelledby="pdfTitle" aria-hidden="true">
+    <!-- عارض PDF -->
+    <div class="pdf-viewer" id="pdfViewer">
         <div class="pdf-header">
-            <h3 id="pdfTitle">📖 قارئ مكتبة إقرأ معنا الآمن من MEGA</h3>
-            <div class="pdf-controls" role="toolbar" aria-label="أدوات عارض PDF">
-                <button class="btn btn-secondary" 
-                        onclick="printPdf()" 
-                        data-action="print"
-                        aria-label="طباعة الملف الحالي">
-                    <i class="fas fa-print" aria-hidden="true"></i>
-                    <span>طباعة آمنة</span>
+            <h3 id="pdfTitle">📖 عارض الكتب من MEGA</h3>
+            <div class="pdf-controls">
+                <button class="btn btn-success" onclick="downloadCurrentPdf()">
+                    <i class="fas fa-download"></i>
+                    تحميل من MEGA
                 </button>
-                <button class="btn mega-btn" 
-                        onclick="downloadCurrentPdf()" 
-                        data-action="download"
-                        aria-label="تحميل الملف الحالي من MEGA">
-                    <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
-                    <span>تحميل من MEGA</span>
-                </button>
-                <button class="btn btn-danger" 
-                        onclick="closePdfViewer()" 
-                        data-action="close"
-                        aria-label="إغلاق عارض PDF">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                    <span>إغلاق</span>
+                <button class="btn btn-secondary" onclick="closePdfViewer()">
+                    <i class="fas fa-times"></i>
+                    إغلاق
                 </button>
             </div>
         </div>
-        <iframe class="pdf-frame" 
-                id="pdfFrame" 
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                title="عارض PDF من MEGA"
-                aria-label="محتوى الكتاب من MEGA"></iframe>
+        <iframe id="pdfFrame" class="pdf-frame"></iframe>
     </div>
 
-    <!-- Loading Indicator -->
-    <div class="loading-overlay" id="loadingOverlay" style="display: none;" role="status" aria-label="جاري التحميل">
-        <div class="loading-spinner">
-            <i class="fas fa-cloud fa-spin" aria-hidden="true" style="color: #D50000;"></i>
-            <p>جاري تحميل النظام الآمن مع MEGA...</p>
-        </div>
-    </div>
+    <!-- رسائل الحالة -->
+    <div id="statusMessage" class="status-message" style="display: none;"></div>
 
-    <!-- JavaScript -->
     <script src="script.js"></script>
-    
-    <!-- Security and Performance Scripts -->
-    <script>
-        // التحقق من تحميل السكريبت بأمان
-        document.addEventListener('DOMContentLoaded', function() {
-            // إظهار مؤشر التحميل
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.style.display = 'flex';
-            }
-            
-            // التحقق من تحميل النظام
-            setTimeout(() => {
-                if (typeof SecureDigitalLibrary === 'undefined' || typeof PureMegaStorage === 'undefined') {
-                    console.error('Security Error: Main script failed to load');
-                    document.body.innerHTML = `
-                        <div style="text-align:center;padding:50px;color:red;font-family:Arial;">
-                            <h2>⚠️ خطأ في تحميل النظام الأمني</h2>
-                            <p>فشل في تحميل المكونات الأساسية للنظام مع MEGA</p>
-                            <button onclick="location.reload()" style="padding:10px 20px;margin-top:20px;background:#D50000;color:white;border:none;border-radius:5px;">
-                                إعادة المحاولة
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    // إخفاء مؤشر التحميل
-                    if (loadingOverlay) {
-                        loadingOverlay.style.display = 'none';
-                    }
-                    console.log('✅ تم تحميل مكتبة إقرأ معنا الآمنة مع MEGA بنجاح');
-                }
-            }, 3000);
-        });
-
-        // حماية إضافية من التلاعب
-        setInterval(() => {
-            // فحص تلاعب DOM
-            const criticalElements = ['adminSection', 'loginModal', 'securityStatus', 'cloudStatus'];
-            criticalElements.forEach(id => {
-                const element = document.getElementById(id);
-                if (element && element.dataset.tampered) {
-                    location.reload();
-                }
-            });
-        }, 5000);
-
-        // حماية خاصة لمعلومات MEGA
-        Object.defineProperty(window, 'MEGA_CREDENTIALS', {
-            value: undefined,
-            writable: false,
-            configurable: false
-        });
-    </script>
-
-    <!-- Schema.org Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "إقرأ معنا - مكتبة رقمية آمنة مع MEGA",
-        "description": "مكتبة رقمية متطورة وآمنة لإدارة ومشاركة الكتب والملفات مع تخزين MEGA السحابي المحمي",
-        "url": "https://iqra-ma3na.github.io",
-        "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Web Browser",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        },
-        "author": {
-            "@type": "Organization",
-            "name": "فريق إقرأ معنا"
-        },
-        "security": {
-            "@type": "SecurityFeature",
-            "name": "تشفير متقدم وتخزين MEGA السحابي الآمن"
-        },
-        "cloudProvider": {
-            "@type": "Service",
-            "name": "MEGA Cloud Storage",
-            "description": "تخزين سحابي آمن ومشفر"
-        }
-    }
-    </script>
 </body>
 </html>
