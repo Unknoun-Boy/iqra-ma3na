@@ -11,7 +11,7 @@
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
         font-src https://fonts.gstatic.com;
         img-src 'self' data: blob:;
-        connect-src 'self';
+        connect-src 'self' https://secure-cloud.library;
         frame-src 'self' blob:;
         object-src 'none';
         base-uri 'self';
@@ -25,8 +25,8 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     
     <title>إقرأ معنا | مكتبتك الرقمية الآمنة</title>
-    <meta name="description" content="مكتبة رقمية آمنة ومتطورة لإدارة ومشاركة الكتب والملفات مع أحدث معايير الأمان">
-    <meta name="keywords" content="مكتبة, كتب, PDF, قراءة, تعليم, إقرأ معنا, آمن, مشفر">
+    <meta name="description" content="مكتبة رقمية آمنة ومتطورة لإدارة ومشاركة الكتب والملفات مع تخزين سحابي محمي">
+    <meta name="keywords" content="مكتبة, كتب, PDF, قراءة, تعليم, إقرأ معنا, آمن, تخزين سحابي">
     <meta name="author" content="فريق إقرأ معنا">
     
     <!-- Open Graph Meta Tags -->
@@ -55,17 +55,63 @@
     <!-- Preload Critical Resources -->
     <link rel="preload" href="script.js" as="script">
     <link rel="preload" href="styles.css" as="style">
+    
+    <!-- حماية كلمة المرور والمعلومات الحساسة -->
+    <script>
+        // منع فحص كلمة المرور من console
+        const originalConsole = console.log;
+        console.log = function(...args) {
+            const message = args.join(' ');
+            if (message.toLowerCase().includes('password') || 
+                message.toLowerCase().includes('admin') ||
+                message.toLowerCase().includes('mega')) {
+                return; // إخفاء المعلومات الحساسة
+            }
+            originalConsole.apply(console, args);
+        };
+
+        // حماية من DevTools
+        let devtools = {open: false, orientation: null};
+        const threshold = 160;
+        setInterval(() => {
+            if (window.outerHeight - window.innerHeight > threshold || 
+                window.outerWidth - window.innerWidth > threshold) {
+                devtools.open = true;
+                devtools.orientation = window.outerHeight - window.innerHeight > threshold ? 'vertical' : 'horizontal';
+                document.body.style.display = 'none';
+                document.body.innerHTML = '<div style="text-align:center;padding:100px;font-size:2rem;color:#dc2626;">🔒 وضع الحماية نشط<br><small>يرجى إغلاق أدوات المطور</small></div>';
+            } else {
+                if (devtools.open) {
+                    location.reload();
+                }
+                devtools.open = false;
+            }
+        }, 500);
+
+        // منع النقر بالزر الأيمن
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // منع اختصارات لوحة المفاتيح الخطيرة
+        document.addEventListener('keydown', function(e) {
+            // منع F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.key === 's')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // حماية Object من التلاعب
+        Object.freeze(Object.prototype);
+        Object.freeze(Array.prototype);
+    </script>
 </head>
 <body>
-    <!-- Security Notice (مخفي للمستخدمين العاديين) -->
-    <!-- 
-    تنبيه أمني للمطورين:
-    - جميع المدخلات يتم تنقيتها من XSS
-    - البيانات الحساسة مشفرة بـ AES-256
-    - نظام Rate Limiting نشط
-    - مراقبة الأنشطة المشبوهة مفعلة
-    -->
-    
     <div class="container">
         <!-- Security Status Indicator -->
         <div class="security-status" id="securityStatus">
@@ -79,7 +125,7 @@
                 <div class="logo">
                     <h1 id="mainTitle">🔒📚 إقرأ معنا</h1>
                     <p class="tagline">مكتبتك الرقمية الآمنة - اكتشف عالم المعرفة والقراءة</p>
-                    <div class="subtitle">منصة محسنة بأحدث معايير الأمان الرقمي والتشفير المتقدم</div>
+                    <div class="subtitle">منصة محسنة بأحدث معايير الأمان الرقمي والتخزين السحابي المحمي</div>
                 </div>
                 
                 <nav class="auth-section" role="navigation" aria-label="تسجيل الدخول">
@@ -128,6 +174,11 @@
                     <div class="stat-number" id="totalModerators" aria-live="polite">0</div>
                     <div class="stat-label">فريق الإدارة</div>
                 </div>
+                <div class="stat-card" role="img" aria-label="التخزين السحابي">
+                    <div class="stat-icon" id="cloudStatusIcon" aria-hidden="true">☁️</div>
+                    <div class="stat-number" id="cloudStatus" aria-live="polite">جاري الاتصال...</div>
+                    <div class="stat-label">التخزين السحابي</div>
+                </div>
                 <div class="stat-card" role="img" aria-label="مستوى الأمان">
                     <div class="stat-icon" aria-hidden="true">🔐</div>
                     <div class="stat-number" id="securityLevel" aria-live="polite">AAA</div>
@@ -145,7 +196,7 @@
         <section class="admin-section" id="adminSection" role="region" aria-labelledby="admin-title">
             <div class="admin-header">
                 <h2 id="admin-title">🛡️ لوحة إدارة مكتبة إقرأ معنا الآمنة</h2>
-                <p>إدارة متقدمة مع أحدث معايير الأمان الرقمي والتشفير</p>
+                <p>إدارة متقدمة مع أحدث معايير الأمان الرقمي والتخزين السحابي المحمي</p>
             </div>
 
             <nav class="admin-tabs" role="tablist" aria-label="تبويبات الإدارة">
@@ -198,7 +249,7 @@
                         role="tab"
                         aria-selected="false"
                         aria-controls="backupTab">
-                    <i class="fas fa-download" aria-hidden="true"></i>
+                    <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
                     <span>النسخ الاحتياطي</span>
                 </button>
             </nav>
@@ -206,7 +257,7 @@
             <!-- Books Management Tab -->
             <div class="tab-content active" id="booksTab" role="tabpanel" aria-labelledby="books-tab">
                 <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    📚 إضافة كتاب جديد بشكل آمن ومشفر
+                    📚 إضافة كتاب جديد للتخزين السحابي الآمن
                 </h3>
                 
                 <div class="upload-area" 
@@ -223,7 +274,7 @@
                     <div class="upload-subtext">
                         يدعم ملفات PDF فقط - الحد الأقصى: 100 ميجابايت
                         <br>
-                        <small>🔐 جميع الملفات يتم فحصها أمنياً وتشفيرها قبل الحفظ</small>
+                        <small>🔐 جميع الملفات يتم فحصها أمنياً ورفعها للتخزين السحابي المحمي</small>
                     </div>
                 </div>
                 
@@ -258,9 +309,9 @@
                             onclick="uploadFile()" 
                             disabled 
                             data-action="upload"
-                            aria-label="رفع الكتاب بأمان إلى المكتبة">
-                        <i class="fas fa-upload" aria-hidden="true"></i>
-                        <span>رفع آمن إلى المكتبة</span>
+                            aria-label="رفع الكتاب بأمان للتخزين السحابي">
+                        <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+                        <span>رفع آمن للسحابة</span>
                     </button>
                     <button class="btn btn-secondary" 
                             onclick="clearSelection()" 
@@ -389,7 +440,15 @@
                             <label class="checkbox-label">
                                 <input type="checkbox" id="enableAutoBackup" checked>
                                 <span class="checkmark"></span>
-                                تفعيل النسخ الاحتياطي التلقائي
+                                تفعيل النسخ الاحتياطي التلقائي للسحابة
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="enableCloudStorage" checked disabled>
+                                <span class="checkmark"></span>
+                                التخزين السحابي الآمن (مفعل دائماً)
                             </label>
                         </div>
                         
@@ -427,6 +486,10 @@
                                 <span id="encryptionStatus" class="stat-value status-active">نشط</span>
                             </div>
                             <div class="security-stat">
+                                <span class="stat-label">التخزين السحابي:</span>
+                                <span id="cloudStorageStatus" class="stat-value status-active">محمي</span>
+                            </div>
+                            <div class="security-stat">
                                 <span class="stat-label">مستوى الحماية:</span>
                                 <span id="protectionLevel" class="stat-value status-active">متقدم</span>
                             </div>
@@ -459,7 +522,7 @@
             <!-- Backup Tab -->
             <div class="tab-content" id="backupTab" role="tabpanel" aria-labelledby="backup-tab">
                 <h3 style="text-align: center; margin-bottom: 25px; color: var(--text-primary);">
-                    💾 النسخ الاحتياطي الآمن والمشفر
+                    💾 النسخ الاحتياطي السحابي الآمن
                 </h3>
                 
                 <div style="text-align: center; margin-bottom: 30px;">
@@ -467,15 +530,22 @@
                             onclick="exportData()" 
                             data-action="export"
                             aria-label="تصدير جميع البيانات مشفرة">
-                        <i class="fas fa-download" aria-hidden="true"></i>
-                        <span>تصدير آمن للبيانات</span>
+                        <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
+                        <span>تصدير آمن من السحابة</span>
                     </button>
                     <button class="btn btn-warning" 
                             onclick="document.getElementById('importFile').click()" 
                             data-action="import"
                             aria-label="استيراد بيانات من ملف مشفر">
-                        <i class="fas fa-upload" aria-hidden="true"></i>
-                        <span>استيراد بيانات مُتحقق منها</span>
+                        <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+                        <span>استيراد للسحابة الآمنة</span>
+                    </button>
+                    <button class="btn btn-info" 
+                            onclick="reconnectCloud()" 
+                            data-action="reconnect"
+                            aria-label="إعادة الاتصال بالتخزين السحابي">
+                        <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                        <span>إعادة الاتصال السحابي</span>
                     </button>
                     <input type="file" 
                            id="importFile" 
@@ -486,21 +556,23 @@
                 </div>
                 
                 <div style="background: var(--bg-accent); padding: 25px; border-radius: 16px;">
-                    <h4 style="margin-bottom: 15px;">🔒 معلومات النسخة الاحتياطية الآمنة:</h4>
+                    <h4 style="margin-bottom: 15px;">🔒 معلومات النسخة الاحتياطية السحابية الآمنة:</h4>
                     <ul style="line-height: 1.8; color: var(--text-secondary);" role="list">
-                        <li>🔐 جميع البيانات مشفرة بتقنية AES-256 قبل التصدير</li>
+                        <li>🔐 جميع البيانات مشفرة بتقنية متقدمة قبل الرفع للسحابة</li>
+                        <li>☁️ التخزين السحابي المحمي مع تشفير من طرف إلى طرف</li>
                         <li>✅ يتم التحقق من سلامة ونزاهة الملفات المستوردة</li>
                         <li>🛡️ النسخ الاحتياطية محمية بكلمات مرور قوية</li>
                         <li>📝 تسجيل جميع عمليات النسخ الاحتياطي في السجل الأمني</li>
                         <li>🔍 فحص أمني شامل للملفات المستوردة قبل المعالجة</li>
-                        <li>⏰ نسخ احتياطي تلقائي كل 24 ساعة (عند التفعيل)</li>
+                        <li>⏰ نسخ احتياطي تلقائي كل 3 كتب مضافة للسحابة</li>
                         <li>🗂️ حفظ تاريخ كامل للنسخ الاحتياطية مع التوقيت</li>
+                        <li>🌐 إمكانية الوصول من أي مكان بأمان تام</li>
                     </ul>
                     
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(5, 150, 105, 0.1); border-radius: 8px; border: 1px solid rgba(5, 150, 105, 0.3);">
-                        <strong style="color: var(--security-color);">💡 نصيحة أمنية:</strong>
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(8, 145, 178, 0.1); border-radius: 8px; border: 1px solid rgba(8, 145, 178, 0.3);">
+                        <strong style="color: var(--cloud-color);">💡 نصيحة أمنية:</strong>
                         <p style="margin-top: 8px; font-size: 0.9rem;">
-                            يُنصح بعمل نسخة احتياطية دورية وحفظها في مكان آمن منفصل عن الخادم الرئيسي
+                            جميع ملفاتك محفوظة بأمان في التخزين السحابي المحمي مع تشفير متقدم وحماية شاملة
                         </p>
                     </div>
                 </div>
@@ -509,14 +581,14 @@
 
         <!-- Files Section -->
         <main class="files-section" role="main" aria-labelledby="files-title">
-            <h2 class="section-title" id="files-title">📖 مكتبة إقرأ معنا الآمنة - الكتب المتاحة</h2>
+            <h2 class="section-title" id="files-title">📖 مكتبة إقرأ معنا الآمنة - الكتب المحفوظة في السحابة</h2>
             
             <div class="search-controls" role="search">
                 <label for="searchBox" class="sr-only">البحث في المكتبة</label>
                 <input type="text" 
                        id="searchBox"
                        class="search-box" 
-                       placeholder="🔍 ابحث بأمان في مكتبة إقرأ معنا..." 
+                       placeholder="🔍 ابحث بأمان في مكتبة إقرأ معنا السحابية..." 
                        oninput="searchFiles(this.value)" 
                        maxlength="100"
                        aria-label="البحث في الكتب والملفات">
@@ -534,11 +606,13 @@
             
             <div class="files-grid" id="filesGrid" role="grid" aria-label="شبكة الكتب والملفات">
                 <div class="no-files" role="status">
-                    <i class="fas fa-shield-alt" style="font-size: 3rem; margin-bottom: 20px; color: var(--primary-color);" aria-hidden="true"></i>
+                    <i class="fas fa-cloud" style="font-size: 3rem; margin-bottom: 20px; color: var(--cloud-color);" aria-hidden="true"></i>
                     <br>
                     مرحباً بك في مكتبة إقرأ معنا الآمنة!
                     <br>
                     لا توجد كتب متاحة حالياً، قم بتسجيل الدخول الآمن لإضافة كتب جديدة
+                    <br>
+                    <small>جميع الكتب محفوظة بأمان في التخزين السحابي المحمي</small>
                 </div>
             </div>
         </main>
@@ -624,8 +698,8 @@
                         onclick="downloadCurrentPdf()" 
                         data-action="download"
                         aria-label="تحميل الملف الحالي">
-                    <i class="fas fa-download" aria-hidden="true"></i>
-                    <span>تحميل آمن</span>
+                    <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
+                    <span>تحميل من السحابة</span>
                 </button>
                 <button class="btn btn-danger" 
                         onclick="closePdfViewer()" 
@@ -646,7 +720,7 @@
     <!-- Loading Indicator -->
     <div class="loading-overlay" id="loadingOverlay" style="display: none;" role="status" aria-label="جاري التحميل">
         <div class="loading-spinner">
-            <i class="fas fa-shield-alt fa-spin" aria-hidden="true"></i>
+            <i class="fas fa-cloud fa-spin" aria-hidden="true"></i>
             <p>جاري تحميل النظام الآمن...</p>
         </div>
     </div>
@@ -687,56 +761,17 @@
             }, 2000);
         });
 
-        // منع النقر بالزر الأيمن في المناطق الحساسة
-        document.addEventListener('contextmenu', function(e) {
-            const sensitiveElements = ['admin-section', 'login-modal', 'security-status'];
-            if (sensitiveElements.some(className => e.target.closest('.' + className))) {
-                e.preventDefault();
-                console.log('🔒 تم منع النقر بالزر الأيمن لأسباب أمنية');
-            }
-        });
-
-        // منع اختصارات لوحة المفاتيح الخطيرة
-        document.addEventListener('keydown', function(e) {
-            // منع F12, Ctrl+Shift+I, Ctrl+U
-            if (e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                (e.ctrlKey && e.key === 'u')) {
-                e.preventDefault();
-                console.log('🔒 تم منع اختصار لوحة المفاتيح لأسباب أمنية');
-            }
-        });
-
-        // تحسين الأداء - Lazy Loading للصور
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        imageObserver.unobserve(img);
-                    }
-                });
+        // حماية إضافية من التلاعب
+        setInterval(() => {
+            // فحص تلاعب DOM
+            const criticalElements = ['adminSection', 'loginModal', 'securityStatus'];
+            criticalElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element && element.dataset.tampered) {
+                    location.reload();
+                }
             });
-
-            document.querySelectorAll('img[data-src]').forEach(img => {
-                imageObserver.observe(img);
-            });
-        }
-
-        // Service Worker للتخزين المؤقت (إذا كان متاحاً)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
+        }, 5000);
     </script>
 
     <!-- Schema.org Structured Data -->
@@ -745,7 +780,7 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "إقرأ معنا - مكتبة رقمية آمنة",
-        "description": "مكتبة رقمية متطورة وآمنة لإدارة ومشاركة الكتب والملفات",
+        "description": "مكتبة رقمية متطورة وآمنة لإدارة ومشاركة الكتب والملفات مع تخزين سحابي محمي",
         "url": "https://iqra-ma3na.github.io",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Web Browser",
@@ -757,6 +792,10 @@
         "author": {
             "@type": "Organization",
             "name": "فريق إقرأ معنا"
+        },
+        "security": {
+            "@type": "SecurityFeature",
+            "name": "تشفير متقدم وتخزين سحابي آمن"
         }
     }
     </script>
