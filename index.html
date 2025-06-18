@@ -3,269 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📚 مكتبة إقرأ معنا - قراءة مجانية للجميع</title>
+    <title>مكتبة إقرأ معنا - المكتبة الرقمية العربية</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- مؤشر الأمان -->
-    <div class="security-status">
-        🔒 نظام آمن مع MEGA
+    <!-- شريط التحميل -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-book-open"></i>
+            <p>جاري التحميل...</p>
+        </div>
     </div>
 
-    <!-- حالة الاتصال بـ MEGA -->
-    <div class="cloud-status" id="cloudStatusContainer">
-        <span id="cloudStatusIcon">⏳</span>
-        <div id="cloudStatus">جاري الاتصال بـ MEGA...</div>
-    </div>
-
-    <div class="container">
-        <!-- الرأس -->
-        <header class="header">
+    <!-- الرأس -->
+    <header class="header">
+        <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1>📚 مكتبة إقرأ معنا</h1>
-                    <p class="tagline">📖 قراءة مجانية للجميع - تخزين آمن مع MEGA</p>
-                    <p class="subtitle">استمتع بقراءة الكتب مجاناً | إدارة آمنة للمشرفين</p>
+                    <i class="fas fa-book-reader"></i>
+                    <h1>مكتبة إقرأ معنا</h1>
                 </div>
-                <div class="auth-section">
-                    <button class="auth-btn" onclick="showLoginModal('admin')">
-                        <i class="fas fa-user-shield"></i>
-                        دخول الأدمن
+                <div class="header-actions">
+                    <button class="search-toggle" id="searchToggle">
+                        <i class="fas fa-search"></i>
                     </button>
-                    <button class="auth-btn" onclick="showLoginModal('moderator')">
-                        <i class="fas fa-user-edit"></i>
-                        دخول المشرف
-                    </button>
-                    <button class="auth-btn logout-btn" onclick="logout()" style="display: none;">
-                        <i class="fas fa-sign-out-alt"></i>
-                        تسجيل خروج آمن
+                    <button class="auth-btn" id="authBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>تسجيل الدخول</span>
                     </button>
                 </div>
             </div>
-        </header>
-
-        <!-- الإحصائيات -->
-        <section class="stats-section">
-            <h2 class="stats-title">📊 إحصائيات المكتبة</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">📚</div>
-                    <div class="stat-number" id="totalBooks">0</div>
-                    <div class="stat-label">إجمالي الكتب</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💾</div>
-                    <div class="stat-number" id="totalSize">0 بايت</div>
-                    <div class="stat-label">مساحة مستخدمة</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon mega-status">☁️</div>
-                    <div class="stat-number mega-status" id="megaStatus">MEGA</div>
-                    <div class="stat-label">التخزين السحابي</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🔒</div>
-                    <div class="stat-number" id="securityLevel">AAA</div>
-                    <div class="stat-label">مستوى الأمان</div>
+            
+            <!-- شريط البحث -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="ابحث في المكتبة...">
+                    <button class="search-btn" id="searchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </div>
-        </section>
+        </div>
+    </header>
 
-        <!-- قسم الإدارة -->
-        <section class="admin-section" id="adminSection">
-            <div class="admin-header">
-                <h2>🛡️ لوحة التحكم الآمنة</h2>
-                <p>إدارة متقدمة مع تشفير وحماية MEGA</p>
-            </div>
-
-            <div class="admin-tabs">
-                <button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    رفع كتاب جديد
-                </button>
-                <button class="tab-btn" data-tab="moderators" onclick="switchTab('moderators')" id="moderatorsTabBtn">
-                    <i class="fas fa-users"></i>
-                    إدارة المشرفين
-                </button>
-                <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')" id="settingsTabBtn">
-                    <i class="fas fa-cog"></i>
-                    إعدادات النظام
-                </button>
-            </div>
-
-            <div class="tab-content active" id="uploadTab">
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()"
-                     ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                    <div class="upload-icon">☁️</div>
-                    <div class="upload-text">اسحب وأفلت ملف PDF هنا أو انقر للاختيار</div>
-                    <div class="upload-subtext">سيتم رفع الملف مباشرة إلى حساب MEGA الآمن<br>الحد الأقصى: 100 ميجابايت</div>
-                    <input type="file" id="fileInput" class="file-input" accept=".pdf" onchange="handleFileSelect(event)">
-                </div>
-
-                <div class="form-group hidden" id="fileNameGroup">
-                    <label for="fileNameInput" class="form-label">📝 اسم الكتاب:</label>
-                    <input type="text" id="fileNameInput" class="form-input" placeholder="أدخل اسم الكتاب...">
-                </div>
-
-                <button class="btn mega-btn" id="uploadBtn" onclick="uploadFile()" disabled>
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    رفع إلى MEGA الآمن
-                </button>
-
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress-bar" id="progressBar">0%</div>
+    <!-- القسم الرئيسي -->
+    <main class="main">
+        <div class="container">
+            <!-- لوحة الإدارة (للمشرفين فقط) -->
+            <div class="admin-panel" id="adminPanel" style="display: none;">
+                <div class="admin-card">
+                    <h2><i class="fas fa-cog"></i> لوحة الإدارة</h2>
+                    <div class="upload-section">
+                        <label for="pdfFile" class="upload-btn">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>رفع كتاب جديد</span>
+                            <input type="file" id="pdfFile" accept=".pdf" multiple>
+                        </label>
+                        <div class="upload-progress" id="uploadProgress" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p id="progressText">جاري الرفع...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="tab-content" id="moderatorsTab">
-                <h3>👥 إضافة مشرف جديد</h3>
-                <div class="form-group">
-                    <label for="newModUsername" class="form-label">👤 اسم المستخدم:</label>
-                    <input type="text" id="newModUsername" class="form-input" placeholder="اسم مستخدم فريد...">
+            <!-- إحصائيات المكتبة -->
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-book"></i>
+                        <div class="stat-info">
+                            <h3 id="totalBooks">0</h3>
+                            <p>إجمالي الكتب</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-download"></i>
+                        <div class="stat-info">
+                            <h3 id="totalDownloads">0</h3>
+                            <p>إجمالي التحميلات</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-info">
+                            <h3>مجاني</h3>
+                            <p>للجميع</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="newModPassword" class="form-label">🔐 كلمة المرور:</label>
-                    <input type="password" id="newModPassword" class="form-input" placeholder="كلمة مرور قوية...">
-                </div>
-                <button class="btn btn-success" onclick="addModerator()">
-                    <i class="fas fa-user-plus"></i>
-                    إضافة مشرف آمن
-                </button>
-
-                <h3 style="margin-top: 2rem;">📋 قائمة المشرفين</h3>
-                <div id="moderatorsList"></div>
             </div>
 
-            <div class="tab-content" id="settingsTab">
-                <h3>⚙️ إعدادات النظام</h3>
-                <div class="form-group">
-                    <label for="maxFileSize" class="form-label">📊 الحد الأقصى لحجم الملف (ميجابايت):</label>
-                    <input type="number" id="maxFileSize" class="form-input" value="100" min="1" max="500">
+            <!-- فلتر الكتب -->
+            <div class="filter-section">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">
+                        <i class="fas fa-th"></i> جميع الكتب
+                    </button>
+                    <button class="filter-tab" data-filter="recent">
+                        <i class="fas fa-clock"></i> الأحدث
+                    </button>
+                    <button class="filter-tab" data-filter="popular">
+                        <i class="fas fa-fire"></i> الأكثر تحميلاً
+                    </button>
+                </div>
+            </div>
+
+            <!-- شبكة الكتب -->
+            <div class="books-section">
+                <div class="books-grid" id="booksGrid">
+                    <!-- الكتب ستظهر هنا ديناميكياً -->
                 </div>
                 
-                <div class="form-group">
-                    <label for="newAdminPassword" class="form-label">🔐 تغيير كلمة مرور الأدمن:</label>
-                    <input type="password" id="newAdminPassword" class="form-input" placeholder="كلمة مرور جديدة (اختياري)...">
-                </div>
-
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="allowPublicView" checked>
-                        <span class="checkmark"></span>
-                        السماح للزوار بمشاهدة الكتب
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="enableSecurityLogging" checked>
-                        <span class="checkmark"></span>
-                        تفعيل سجل الأمان
-                    </label>
-                </div>
-
-                <button class="btn mega-btn" onclick="saveSettings()">
-                    <i class="fas fa-save"></i>
-                    حفظ في MEGA الآمن
-                </button>
-
-                <div class="security-info">
-                    <i class="fas fa-info-circle"></i>
-                    جميع الإعدادات محفوظة بأمان في حساب MEGA مع تشفير متقدم
+                <!-- رسالة فارغة -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="fas fa-book-open"></i>
+                    <h3>لا توجد كتب بعد</h3>
+                    <p>قم برفع أول كتاب لبدء مكتبتك الرقمية</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </main>
 
-        <!-- قسم عرض الكتب -->
-        <section class="files-section">
-            <h2 class="section-title">📖 مكتبة إقرأ معنا المفتوحة</h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
-                📚 اقرأ واستمتع بالكتب مجاناً - 🔒 إدارة آمنة للمشرفين
-            </p>
-
-            <div class="search-controls">
-                <input type="text" class="search-box" placeholder="🔍 ابحث في المكتبة..." 
-                       onkeyup="searchFiles(this.value)">
-                <select class="sort-select" onchange="sortFiles(this.value)">
-                    <option value="name-asc">📝 الاسم (أ-ي)</option>
-                    <option value="name-desc">📝 الاسم (ي-أ)</option>
-                    <option value="date-desc">📅 الأحدث أولاً</option>
-                    <option value="date-asc">📅 الأقدم أولاً</option>
-                    <option value="size-desc">📊 الأكبر حجماً</option>
-                    <option value="size-asc">📊 الأصغر حجماً</option>
-                </select>
-            </div>
-
-            <div id="filesGrid" class="files-grid">
-                <div class="no-files">
-                    <i class="fas fa-book-open" style="font-size: 3rem; margin-bottom: 20px; color: #0891B2;"></i>
-                    <br>📚 لا توجد كتب حالياً في المكتبة
-                    <br><small>🔒 المشرفون فقط يمكنهم إضافة كتب جديدة</small>
+    <!-- نافذة عارض PDF -->
+    <div class="pdf-modal" id="pdfModal">
+        <div class="pdf-modal-content">
+            <div class="pdf-modal-header">
+                <h3 id="pdfTitle">عارض الكتاب</h3>
+                <div class="pdf-controls">
+                    <button class="pdf-btn" id="downloadPdf">
+                        <i class="fas fa-download"></i> تحميل
+                    </button>
+                    <button class="pdf-btn" id="closePdf">
+                        <i class="fas fa-times"></i> إغلاق
+                    </button>
                 </div>
             </div>
-        </section>
-    </div>
-
-    <!-- نافذة تسجيل الدخول -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="loginTitle">🔒 تسجيل دخول آمن</h3>
-            </div>
-            
-            <div class="form-group" id="usernameGroup">
-                <label for="loginUsername" class="form-label">👤 اسم المستخدم:</label>
-                <input type="text" id="loginUsername" class="form-input" placeholder="أدخل اسم المستخدم...">
-            </div>
-            
-            <div class="form-group">
-                <label for="loginPassword" class="form-label">🔐 كلمة المرور:</label>
-                <input type="password" id="loginPassword" class="form-input" placeholder="أدخل كلمة المرور...">
-            </div>
-            
-            <div id="loginMessage" class="status-message" style="display: none;"></div>
-            
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="btn mega-btn" onclick="login()">
-                    <i class="fas fa-sign-in-alt"></i>
-                    دخول آمن
-                </button>
-                <button class="btn btn-secondary" onclick="closeLoginModal()">
-                    <i class="fas fa-times"></i>
-                    إلغاء
-                </button>
-            </div>
-
-            <div class="security-info" style="margin-top: 1rem;">
-                <i class="fas fa-shield-alt"></i>
-                تسجيل دخول آمن مع تشفير متقدم وحماية MEGA
+            <div class="pdf-viewer">
+                <iframe id="pdfFrame" src="" frameborder="0"></iframe>
             </div>
         </div>
     </div>
 
-    <!-- عارض PDF -->
-    <div class="pdf-viewer" id="pdfViewer">
-        <div class="pdf-header">
-            <h3 id="pdfTitle">📖 عارض الكتب من MEGA</h3>
-            <div class="pdf-controls">
-                <button class="btn btn-success" onclick="downloadCurrentPdf()">
-                    <i class="fas fa-download"></i>
-                    تحميل من MEGA
-                </button>
-                <button class="btn btn-secondary" onclick="closePdfViewer()">
-                    <i class="fas fa-times"></i>
-                    إغلاق
-                </button>
+    <!-- نافذة تأكيد الحذف -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <h3><i class="fas fa-exclamation-triangle"></i> تأكيد الحذف</h3>
+            <p>هل أنت متأكد من حذف هذا الكتاب؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            <div class="confirm-actions">
+                <button class="btn btn-danger" id="confirmDelete">حذف</button>
+                <button class="btn btn-secondary" id="cancelDelete">إلغاء</button>
             </div>
         </div>
-        <iframe id="pdfFrame" class="pdf-frame"></iframe>
     </div>
 
-    <!-- رسائل الحالة -->
-    <div id="statusMessage" class="status-message" style="display: none;"></div>
+    <!-- التذييل -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-book-reader"></i> مكتبة إقرأ معنا</h4>
+                    <p>مكتبة رقمية عربية مجانية للجميع</p>
+                </div>
+                <div class="footer-section">
+                    <h4><i class="fas fa-info-circle"></i> حول المكتبة</h4>
+                    <ul>
+                        <li>قراءة مجانية</li>
+                        <li>تحميل مباشر</li>
+                        <li>تخزين سحابي آمن</li>
+                        <li>واجهة عربية</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4><i class="fas fa-cog"></i> التقنيات</h4>
+                    <ul>
+                        <li>Google Drive API</li>
+                        <li>تخزين سحابي</li>
+                        <li>OAuth 2.0</li>
+                        <li>HTML5 & CSS3</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 مكتبة إقرأ معنا. جميع الحقوق محفوظة.</p>
+                <p>مدعوم بـ <i class="fab fa-google-drive"></i> Google Drive</p>
+            </div>
+        </div>
+    </footer>
 
+    <!-- تحميل المكتبات -->
+    <script src="https://apis.google.com/js/api.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
