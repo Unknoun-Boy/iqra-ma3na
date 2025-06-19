@@ -4,9 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مكتبة إقرأ معنا - المكتبة الرقمية العربية</title>
+    
+    <!-- CSS و الخطوط -->
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Meta Tags للـ SEO -->
+    <meta name="description" content="مكتبة إقرأ معنا - مكتبة رقمية عربية مجانية مع Google Drive. اقرأ وحمل آلاف الكتب مجاناً">
+    <meta name="keywords" content="مكتبة, كتب عربية, PDF, تحميل مجاني, قراءة, كتب إلكترونية">
+    <meta name="author" content="مكتبة إقرأ معنا">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="مكتبة إقرأ معنا - المكتبة الرقمية العربية">
+    <meta property="og:description" content="مكتبة رقمية عربية مجانية مع Google Drive">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://unknoun-boy.github.io/iqra-ma3na/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    
+    <!-- تحميل Google API مع معالجة الأخطاء -->
+    <script>
+        window.gapiLoadTimeout = setTimeout(() => {
+            console.error('❌ فشل تحميل Google API');
+            if (typeof showNotification === 'function') {
+                showNotification('تعذر تحميل خدمات Google. تأكد من الاتصال بالإنترنت.', 'error');
+            } else {
+                alert('تعذر تحميل خدمات Google. تأكد من الاتصال بالإنترنت.');
+            }
+        }, 15000);
+    </script>
+    
+    <script src="https://apis.google.com/js/api.js" 
+            onload="clearTimeout(window.gapiLoadTimeout); console.log('✅ تم تحميل Google API بنجاح');"
+            onerror="console.error('❌ خطأ في تحميل Google API');">
+    </script>
 </head>
 <body>
     <!-- شريط التحميل -->
@@ -14,6 +47,11 @@
         <div class="loading-spinner">
             <i class="fas fa-book-open"></i>
             <p>جاري التحميل...</p>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </div>
 
@@ -24,12 +62,14 @@
                 <div class="logo">
                     <i class="fas fa-book-reader"></i>
                     <h1>مكتبة إقرأ معنا</h1>
+                    <span class="logo-subtitle">المكتبة الرقمية العربية</span>
                 </div>
                 <div class="header-actions">
-                    <button class="search-toggle" id="searchToggle">
+                    <button class="search-toggle" id="searchToggle" title="البحث (Ctrl+K)">
                         <i class="fas fa-search"></i>
+                        <span>بحث</span>
                     </button>
-                    <button class="auth-btn" id="authBtn">
+                    <button class="auth-btn" id="authBtn" title="تسجيل الدخول">
                         <i class="fas fa-sign-in-alt"></i>
                         <span>تسجيل الدخول</span>
                     </button>
@@ -39,10 +79,17 @@
             <!-- شريط البحث -->
             <div class="search-container" id="searchContainer">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="ابحث في المكتبة...">
-                    <button class="search-btn" id="searchBtn">
-                        <i class="fas fa-search"></i>
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="ابحث في المكتبة عن كتاب، مؤلف، أو موضوع..." autocomplete="off">
+                    <button class="search-btn" id="searchBtn" title="بحث">
+                        <i class="fas fa-arrow-left"></i>
                     </button>
+                    <button class="search-clear" onclick="document.getElementById('searchInput').value=''; performSearch();" title="مسح">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="search-suggestions" id="searchSuggestions" style="display: none;">
+                    <!-- اقتراحات البحث ستظهر هنا -->
                 </div>
             </div>
         </div>
@@ -51,14 +98,26 @@
     <!-- القسم الرئيسي -->
     <main class="main">
         <div class="container">
+            <!-- رسالة ترحيب -->
+            <section class="welcome-section">
+                <div class="welcome-content">
+                    <h2><i class="fas fa-heart"></i> أهلاً بك في مكتبتنا الرقمية</h2>
+                    <p>اكتشف عالماً من المعرفة مع آلاف الكتب العربية المجانية. اقرأ، حمّل، وتعلم بلا حدود</p>
+                </div>
+            </section>
+
             <!-- لوحة الإدارة (للمشرفين فقط) -->
-            <div class="admin-panel" id="adminPanel" style="display: none;">
+            <section class="admin-panel" id="adminPanel" style="display: none;">
                 <div class="admin-card">
-                    <h2><i class="fas fa-cog"></i> لوحة الإدارة</h2>
+                    <div class="admin-header">
+                        <h2><i class="fas fa-cog"></i> لوحة الإدارة</h2>
+                        <span class="admin-badge">مشرف</span>
+                    </div>
                     <div class="upload-section">
                         <label for="pdfFile" class="upload-btn">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <span>رفع كتاب جديد</span>
+                            <small>PDF - حتى 100 ميجابايت</small>
                             <input type="file" id="pdfFile" accept=".pdf" multiple>
                         </label>
                         <div class="upload-progress" id="uploadProgress" style="display: none;">
@@ -69,63 +128,115 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- إحصائيات المكتبة -->
-            <div class="stats-section">
+            <section class="stats-section">
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <i class="fas fa-book"></i>
+                    <div class="stat-card books-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
                         <div class="stat-info">
                             <h3 id="totalBooks">0</h3>
                             <p>إجمالي الكتب</p>
                         </div>
+                        <div class="stat-trend">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <i class="fas fa-download"></i>
+                    <div class="stat-card downloads-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
                         <div class="stat-info">
                             <h3 id="totalDownloads">0</h3>
                             <p>إجمالي التحميلات</p>
                         </div>
+                        <div class="stat-trend">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <i class="fas fa-users"></i>
+                    <div class="stat-card users-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
                         <div class="stat-info">
                             <h3>مجاني</h3>
                             <p>للجميع</p>
                         </div>
+                        <div class="stat-trend">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card storage-stat">
+                        <div class="stat-icon">
+                            <i class="fab fa-google-drive"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>15GB</h3>
+                            <p>تخزين مجاني</p>
+                        </div>
+                        <div class="stat-trend">
+                            <i class="fas fa-cloud"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- فلتر الكتب -->
-            <div class="filter-section">
+            <section class="filter-section">
+                <div class="filter-header">
+                    <h3><i class="fas fa-filter"></i> تصفح المكتبة</h3>
+                    <p>اختر طريقة العرض المفضلة لديك</p>
+                </div>
                 <div class="filter-tabs">
                     <button class="filter-tab active" data-filter="all">
-                        <i class="fas fa-th"></i> جميع الكتب
+                        <i class="fas fa-th"></i>
+                        <span>جميع الكتب</span>
                     </button>
                     <button class="filter-tab" data-filter="recent">
-                        <i class="fas fa-clock"></i> الأحدث
+                        <i class="fas fa-clock"></i>
+                        <span>الأحدث</span>
                     </button>
                     <button class="filter-tab" data-filter="popular">
-                        <i class="fas fa-fire"></i> الأكثر تحميلاً
+                        <i class="fas fa-fire"></i>
+                        <span>الأكثر تحميلاً</span>
                     </button>
                 </div>
-            </div>
+            </section>
 
             <!-- شبكة الكتب -->
-            <div class="books-section">
+            <section class="books-section">
+                <div class="books-header">
+                    <h3><i class="fas fa-books"></i> مكتبة الكتب</h3>
+                    <div class="view-options">
+                        <button class="view-btn active" data-view="grid" title="عرض شبكي">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="view-btn" data-view="list" title="عرض قائمة">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+                
                 <div class="books-grid" id="booksGrid">
                     <!-- الكتب ستظهر هنا ديناميكياً -->
                 </div>
                 
                 <!-- رسالة فارغة -->
                 <div class="empty-state" id="emptyState" style="display: none;">
-                    <i class="fas fa-book-open"></i>
+                    <div class="empty-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
                     <h3>لا توجد كتب بعد</h3>
                     <p>قم برفع أول كتاب لبدء مكتبتك الرقمية</p>
+                    <button class="empty-action" onclick="document.getElementById('authBtn').click()">
+                        <i class="fas fa-plus"></i>
+                        ابدأ الآن
+                    </button>
                 </div>
-            </div>
+            </section>
         </div>
     </main>
 
@@ -133,18 +244,31 @@
     <div class="pdf-modal" id="pdfModal">
         <div class="pdf-modal-content">
             <div class="pdf-modal-header">
-                <h3 id="pdfTitle">عارض الكتاب</h3>
+                <div class="pdf-title-section">
+                    <h3 id="pdfTitle">عارض الكتاب</h3>
+                    <span class="pdf-subtitle">مكتبة إقرأ معنا</span>
+                </div>
                 <div class="pdf-controls">
-                    <button class="pdf-btn" id="downloadPdf">
-                        <i class="fas fa-download"></i> تحميل
+                    <button class="pdf-btn" id="downloadPdf" title="تحميل الكتاب">
+                        <i class="fas fa-download"></i>
+                        <span>تحميل</span>
                     </button>
-                    <button class="pdf-btn" id="closePdf">
-                        <i class="fas fa-times"></i> إغلاق
+                    <button class="pdf-btn" onclick="window.open(document.getElementById('pdfFrame').src, '_blank')" title="فتح في نافذة جديدة">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>فتح</span>
+                    </button>
+                    <button class="pdf-btn pdf-close" id="closePdf" title="إغلاق (Esc)">
+                        <i class="fas fa-times"></i>
+                        <span>إغلاق</span>
                     </button>
                 </div>
             </div>
             <div class="pdf-viewer">
-                <iframe id="pdfFrame" src="" frameborder="0"></iframe>
+                <iframe id="pdfFrame" src="" frameborder="0" allowfullscreen></iframe>
+                <div class="pdf-loading" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>جاري تحميل الكتاب...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -152,11 +276,20 @@
     <!-- نافذة تأكيد الحذف -->
     <div class="confirm-modal" id="confirmModal">
         <div class="confirm-content">
-            <h3><i class="fas fa-exclamation-triangle"></i> تأكيد الحذف</h3>
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>تأكيد الحذف</h3>
             <p>هل أنت متأكد من حذف هذا الكتاب؟ لا يمكن التراجع عن هذا الإجراء.</p>
             <div class="confirm-actions">
-                <button class="btn btn-danger" id="confirmDelete">حذف</button>
-                <button class="btn btn-secondary" id="cancelDelete">إلغاء</button>
+                <button class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash"></i>
+                    <span>حذف</span>
+                </button>
+                <button class="btn btn-secondary" id="cancelDelete">
+                    <i class="fas fa-times"></i>
+                    <span>إلغاء</span>
+                </button>
             </div>
         </div>
     </div>
@@ -165,38 +298,206 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-section">
-                    <h4><i class="fas fa-book-reader"></i> مكتبة إقرأ معنا</h4>
-                    <p>مكتبة رقمية عربية مجانية للجميع</p>
+                <div class="footer-section about">
+                    <div class="footer-logo">
+                        <i class="fas fa-book-reader"></i>
+                        <h4>مكتبة إقرأ معنا</h4>
+                    </div>
+                    <p>مكتبة رقمية عربية مجانية تهدف إلى نشر المعرفة وتسهيل الوصول للكتب العربية الأصيلة</p>
+                    <div class="footer-social">
+                        <a href="#" title="تويتر"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="فيسبوك"><i class="fab fa-facebook"></i></a>
+                        <a href="#" title="تيليجرام"><i class="fab fa-telegram"></i></a>
+                        <a href="#" title="واتساب"><i class="fab fa-whatsapp"></i></a>
+                    </div>
                 </div>
-                <div class="footer-section">
+                
+                <div class="footer-section links">
                     <h4><i class="fas fa-info-circle"></i> حول المكتبة</h4>
                     <ul>
-                        <li>قراءة مجانية</li>
-                        <li>تحميل مباشر</li>
-                        <li>تخزين سحابي آمن</li>
-                        <li>واجهة عربية</li>
+                        <li><a href="#"><i class="fas fa-eye"></i> قراءة مجانية</a></li>
+                        <li><a href="#"><i class="fas fa-download"></i> تحميل مباشر</a></li>
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> تخزين آمن</a></li>
+                        <li><a href="#"><i class="fas fa-mobile-alt"></i> متوافق مع الجوال</a></li>
+                        <li><a href="#"><i class="fas fa-language"></i> واجهة عربية</a></li>
                     </ul>
                 </div>
-                <div class="footer-section">
+                
+                <div class="footer-section tech">
                     <h4><i class="fas fa-cog"></i> التقنيات</h4>
                     <ul>
-                        <li>Google Drive API</li>
-                        <li>تخزين سحابي</li>
-                        <li>OAuth 2.0</li>
-                        <li>HTML5 & CSS3</li>
+                        <li><a href="#"><i class="fab fa-google-drive"></i> Google Drive API</a></li>
+                        <li><a href="#"><i class="fas fa-cloud"></i> تخزين سحابي</a></li>
+                        <li><a href="#"><i class="fas fa-lock"></i> OAuth 2.0</a></li>
+                        <li><a href="#"><i class="fab fa-html5"></i> HTML5 & CSS3</a></li>
+                        <li><a href="#"><i class="fab fa-js"></i> JavaScript ES6+</a></li>
                     </ul>
                 </div>
+                
+                <div class="footer-section contact">
+                    <h4><i class="fas fa-envelope"></i> تواصل معنا</h4>
+                    <div class="contact-info">
+                        <p><i class="fas fa-globe"></i> الموقع: مكتبة رقمية</p>
+                        <p><i class="fas fa-users"></i> للجميع مجاناً</p>
+                        <p><i class="fas fa-heart"></i> صنع بحب في العالم العربي</p>
+                    </div>
+                    <div class="newsletter">
+                        <p>اشترك لتصلك التحديثات:</p>
+                        <div class="newsletter-form">
+                            <input type="email" placeholder="بريدك الإلكتروني">
+                            <button><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
+            
             <div class="footer-bottom">
-                <p>&copy; 2025 مكتبة إقرأ معنا. جميع الحقوق محفوظة.</p>
-                <p>مدعوم بـ <i class="fab fa-google-drive"></i> Google Drive</p>
+                <div class="footer-bottom-content">
+                    <p>&copy; 2025 مكتبة إقرأ معنا. جميع الحقوق محفوظة.</p>
+                    <div class="footer-links">
+                        <a href="#">الخصوصية</a>
+                        <a href="#">الشروط</a>
+                        <a href="#">المساعدة</a>
+                    </div>
+                </div>
+                <div class="footer-tech-info">
+                    <p>مدعوم بـ <i class="fab fa-google-drive"></i> Google Drive • مستضاف على <i class="fab fa-github"></i> GitHub Pages</p>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- تحميل المكتبات -->
-    <script src="https://apis.google.com/js/api.js"></script>
+    <!-- تحسينات إضافية -->
+    <div class="scroll-to-top" id="scrollToTop" style="display: none;">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- زر المساعدة -->
+    <div class="help-button" onclick="showHelp()">
+        <i class="fas fa-question-circle"></i>
+    </div>
+
+    <!-- نافذة المساعدة -->
+    <div class="help-modal" id="helpModal" style="display: none;">
+        <div class="help-content">
+            <div class="help-header">
+                <h3><i class="fas fa-question-circle"></i> المساعدة</h3>
+                <button onclick="closeHelp()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="help-body">
+                <div class="help-section">
+                    <h4>كيفية الاستخدام:</h4>
+                    <ul>
+                        <li><strong>القراءة:</strong> انقر على "قراءة" لفتح الكتاب</li>
+                        <li><strong>التحميل:</strong> انقر على "تحميل" لحفظ الكتاب</li>
+                        <li><strong>البحث:</strong> استخدم مربع البحث أو اضغط Ctrl+K</li>
+                        <li><strong>الفلترة:</strong> استخدم الأزرار لترتيب الكتب</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h4>للمشرفين:</h4>
+                    <ul>
+                        <li><strong>رفع كتاب:</strong> سجل الدخول ثم اختر ملف PDF</li>
+                        <li><strong>حذف كتاب:</strong> انقر على أيقونة الحذف</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h4>اختصارات لوحة المفاتيح:</h4>
+                    <ul>
+                        <li><kbd>Ctrl + K</kbd>: فتح البحث</li>
+                        <li><kbd>Esc</kbd>: إغلاق النوافذ</li>
+                        <li><kbd>F5</kbd>: تحديث الكتب</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تحميل JavaScript -->
+    <script>
+        // وظائف مساعدة للنوافذ
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+        
+        function closeHelp() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+        
+        // زر العودة للأعلى
+        window.addEventListener('scroll', function() {
+            const scrollBtn = document.getElementById('scrollToTop');
+            if (window.pageYOffset > 300) {
+                scrollBtn.style.display = 'block';
+            } else {
+                scrollBtn.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('scrollToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // تحسين تجربة المستخدم
+        document.addEventListener('DOMContentLoaded', function() {
+            // إضافة تأثيرات hover للبطاقات
+            const cards = document.querySelectorAll('.stat-card, .book-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // تحسين عرض الصور
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    this.style.display = 'none';
+                    // إظهار أيقونة بديلة
+                    const fallback = document.createElement('i');
+                    fallback.className = 'fas fa-book book-icon';
+                    this.parentNode.appendChild(fallback);
+                });
+            });
+        });
+        
+        // منع النقر المزدوج السريع
+        let lastClickTime = 0;
+        document.addEventListener('click', function(e) {
+            const currentTime = new Date().getTime();
+            if (currentTime - lastClickTime < 300) {
+                e.preventDefault();
+                return false;
+            }
+            lastClickTime = currentTime;
+        });
+    </script>
+    
+    <!-- تحميل الملف الرئيسي -->
     <script src="script.js"></script>
+    
+    <!-- إضافة Schema.org للـ SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Library",
+      "name": "مكتبة إقرأ معنا",
+      "description": "مكتبة رقمية عربية مجانية مع Google Drive",
+      "url": "https://unknoun-boy.github.io/iqra-ma3na/",
+      "sameAs": [
+        "https://github.com/unknoun-boy/iqra-ma3na"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+    </script>
 </body>
 </html>
