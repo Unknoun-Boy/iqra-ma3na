@@ -1,8 +1,12 @@
-// إعدادات Google Drive API
-const API_KEY = 'AIzaSyAlzkca99-POCd7oKYFV1dPmd6Tv5qxYbI';
-const CLIENT_ID = '112937826203-drj4j9pv73vf9bpr882kdfbipg4rjk2k.apps.googleusercontent.com';
+// إعدادات Google Drive API - المحدثة حسب بياناتك الجديدة
+const API_KEY = 'AIzaSyDtb-wHM70VJFnnb_yPuCSFacscEFbAmbY';
+const CLIENT_ID = '1033541660682-udi2rct0i74bq80mnqcugnb0bip79ajo.apps.googleusercontent.com';
 const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
 const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly';
+
+// إعدادات خاصة بـ GitHub Pages
+const GITHUB_DOMAIN = 'https://unknoun-boy.github.io/iqra-ma3na/';
+const isGitHubPages = window.location.href.includes('unknoun-boy.github.io');
 
 // متغيرات عامة
 let gapi;
@@ -12,6 +16,7 @@ let filteredBooks = [];
 let currentFilter = 'all';
 let totalDownloads = parseInt(localStorage.getItem('totalDownloads') || '0');
 let currentPdfUrl = '';
+let authInstance = null;
 
 // عناصر DOM
 const loadingOverlay = document.getElementById('loadingOverlay');
@@ -41,58 +46,167 @@ const cancelDelete = document.getElementById('cancelDelete');
 // متغيرات للحذف
 let bookToDelete = null;
 
-// تحميل Google API
+// تحميل Google API مع معالجة أخطاء محسنة
 function loadGoogleAPI() {
     return new Promise((resolve, reject) => {
-        if (typeof gapi !== 'undefined') {
-            gapi.load('client:auth2', async () => {
-                try {
-                    await gapi.client.init({
-                        apiKey: API_KEY,
-                        clientId: CLIENT_ID,
-                        discoveryDocs: [DISCOVERY_DOC],
-                        scope: SCOPES
-                    });
-                    
-                    const authInstance = gapi.auth2.getAuthInstance();
-                    if (authInstance) {
-                        isSignedIn = authInstance.isSignedIn.get();
-                        updateAuthUI();
-                        authInstance.isSignedIn.listen(updateAuthUI);
-                        resolve();
-                    } else {
-                        reject(new Error('فشل في تهيئة المصادقة'));
-                    }
-                } catch (error) {
-                    console.error('❌ خطأ في تهيئة Google API:', error);
-                    showNotification('خطأ في الاتصال بـ Google Drive', 'error');
-                    reject(error);
-                }
-            });
-        } else {
+        console.log('🔄 بدء تحميل Google API...');
+        console.log('🌐 النطاق الحالي:', window.location.origin);
+        
+        if (typeof gapi === 'undefined') {
+            console.error('❌ مكتبة Google API غير محملة');
+            showNotification('تعذر تحميل خدمات Google. تأكد من الاتصال بالإنترنت.', 'error');
             reject(new Error('Google API غير متوفر'));
+            return;
         }
+
+        console.log('✅ مكتبة Google API متوفرة');
+
+        // تحميل المكونات المطلوبة مع timeout
+        const loadTimeout = setTimeout(() => {
+            console.error('❌ انتهت مهلة تحميل Google API');
+            reject(new Error('انتهت مهلة تحميل Google API'));
+        }, 20000);
+
+        gapi.load('client:auth2', async () => {
+            try {
+                clearTimeout(loadTimeout);
+                
+                console.log('🔧 تهيئة Google Client...');
+                
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    clientId: CLIENT_ID,
+                    discoveryDocs: [DISCOVERY_DOC],
+                    scope: SCOPES
+                });
+                
+                console.log('✅ تم تهيئة Google Client بنجاح');
+                
+                // التحقق من وجود auth2
+                authInstance = gapi.auth2.getAuthInstance();
+                if (!authInstance) {
+                    throw new Error('فشل تهيئة مكون المصادقة');
+                }
+                
+                console.log('✅ مكون المصادقة جاهز');
+                
+                isSignedIn = authInstance.isSignedIn.get();
+                updateAuthUI();
+                authInstance.isSignedIn.listen(updateAuthUI);
+                
+                resolve();
+                
+            } catch (error) {
+                clearTimeout(loadTimeout);
+                console.error('❌ خطأ في تهيئة Google API:', error);
+                
+                // رسائل خطأ مخصصة
+                let errorMessage = 'خطأ في تهيئة خدمات Google';
+                
+                if (error.details) {
+                    const details = error.details.toLowerCase();
+                    if (details.includes('api key')) {
+                        errorMessage = 'خطأ في مفتاح API. تحقق من الإعدادات.';
+                    } else if (details.includes('client id') || details.includes('client_id')) {
+                        errorMessage = 'خطأ في معرف العميل. تحقق من الإعدادات.';
+                    } else if (details.includes('origin') || details.includes('unauthorized')) {
+                        errorMessage = 'النطاق غير مصرح به في Google Cloud Console.';
+                    }
+                } else if (error.message) {
+                    if (error.message.includes('unauthorized_client')) {
+                        errorMessage = 'العميل غير مصرح. تحقق من إعدادات OAuth في Google Console.';
+                    } else if (error.message.includes('invalid_client')) {
+                        errorMessage = 'معرف العميل غير صحيح.';
+                    }
+                }
+                
+                showNotification(errorMessage, 'error');
+                reject(error);
+            }
+        }, (error) => {
+            clearTimeout(loadTimeout);
+            console.error('❌ فشل تحميل مكونات Google API:', error);
+            showNotification('فشل تحميل مكونات Google API', 'error');
+            reject(error);
+        });
     });
 }
 
-// تهيئة التطبيق
+// تهيئة التطبيق مع إعادة المحاولة
 async function initializeApp() {
     console.log('🚀 تهيئة مكتبة إقرأ معنا...');
+    console.log('📊 معلومات البيئة:');
+    console.log('  - النطاق:', window.location.origin);
+    console.log('  - GitHub Pages:', isGitHubPages);
+    console.log('  - Client ID:', CLIENT_ID.substring(0, 20) + '...');
     
     updateDownloadsCount();
     
-    try {
-        await loadGoogleAPI();
-        console.log('✅ تم تحميل Google API بنجاح');
-    } catch (error) {
-        console.error('❌ فشل تحميل Google API:', error);
-        showNotification('تعذر الاتصال بخدمة Google Drive', 'warning');
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+        try {
+            await loadGoogleAPI();
+            console.log('✅ تم تحميل Google API بنجاح');
+            break;
+        } catch (error) {
+            retryCount++;
+            console.error(`❌ المحاولة ${retryCount} فشلت:`, error.message);
+            
+            if (retryCount < maxRetries) {
+                showNotification(`إعادة المحاولة ${retryCount}/${maxRetries}...`, 'warning');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            } else {
+                console.error('❌ فشل في جميع المحاولات');
+                showNotification('تعذر الاتصال بخدمات Google. تحقق من الاتصال بالإنترنت والإعدادات.', 'error');
+                addReloadButton();
+            }
+        }
     }
     
     setupEventListeners();
     await loadBooks();
     hideLoading();
     console.log('✅ تم تهيئة المكتبة بنجاح!');
+}
+
+// إضافة زر إعادة التحميل
+function addReloadButton() {
+    if (document.querySelector('.reload-btn')) return;
+    
+    const reloadBtn = document.createElement('button');
+    reloadBtn.className = 'reload-btn';
+    reloadBtn.innerHTML = '<i class="fas fa-refresh"></i> إعادة تحميل الخدمات';
+    reloadBtn.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: #ea4335;
+        color: white;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        z-index: 1000;
+        font-family: var(--font-family);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        font-size: 0.9rem;
+    `;
+    
+    reloadBtn.onclick = async () => {
+        reloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+        try {
+            await initializeApp();
+            reloadBtn.remove();
+            showNotification('تم إعادة تحميل الخدمات بنجاح', 'success');
+        } catch (error) {
+            reloadBtn.innerHTML = '<i class="fas fa-refresh"></i> إعادة تحميل الخدمات';
+            showNotification('فشل إعادة التحميل', 'error');
+        }
+    };
+    
+    document.body.appendChild(reloadBtn);
 }
 
 document.addEventListener('DOMContentLoaded', initializeApp);
@@ -139,17 +253,12 @@ function setupEventListeners() {
     document.addEventListener('keydown', handleKeyboardShortcuts);
 }
 
-// إدارة المصادقة
+// إدارة المصادقة مع معالجة أخطاء محسنة
 async function handleAuth() {
     try {
-        if (typeof gapi === 'undefined' || !gapi.auth2) {
-            showNotification('خدمة Google غير متاحة حالياً', 'error');
-            return;
-        }
-        
-        const authInstance = gapi.auth2.getAuthInstance();
         if (!authInstance) {
-            showNotification('خطأ في خدمة المصادقة', 'error');
+            showNotification('خدمة المصادقة غير متاحة. جاري إعادة التحميل...', 'warning');
+            await initializeApp();
             return;
         }
         
@@ -157,12 +266,30 @@ async function handleAuth() {
             await authInstance.signOut();
             showNotification('تم تسجيل الخروج بنجاح', 'success');
         } else {
-            await authInstance.signIn();
-            showNotification('تم تسجيل الدخول بنجاح', 'success');
+            // تحسين عملية تسجيل الدخول
+            const user = await authInstance.signIn({
+                prompt: 'select_account'
+            });
+            
+            if (user && user.isSignedIn()) {
+                showNotification('تم تسجيل الدخول بنجاح', 'success');
+                // إعادة تحميل الكتب بعد تسجيل الدخول
+                setTimeout(() => loadBooks(), 1000);
+            }
         }
     } catch (error) {
         console.error('❌ خطأ في المصادقة:', error);
-        showNotification('خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى', 'error');
+        
+        // معالجة أخطاء محددة
+        if (error.error === 'popup_closed_by_user') {
+            showNotification('تم إلغاء تسجيل الدخول', 'warning');
+        } else if (error.error === 'access_denied') {
+            showNotification('تم رفض الوصول. تحقق من الأذونات.', 'error');
+        } else if (error.error === 'unauthorized_client') {
+            showNotification('العميل غير مصرح. تحقق من إعدادات Google Console.', 'error');
+        } else {
+            showNotification('خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى', 'error');
+        }
     }
 }
 
@@ -171,7 +298,11 @@ function updateAuthUI() {
     if (!authBtn) return;
     
     try {
-        const authInstance = gapi.auth2.getAuthInstance();
+        if (!authInstance) {
+            console.warn('⚠️ authInstance غير متوفر');
+            return;
+        }
+        
         isSignedIn = authInstance.isSignedIn.get();
         
         if (isSignedIn) {
@@ -184,6 +315,8 @@ function updateAuthUI() {
             `;
             authBtn.title = 'تسجيل الخروج';
             if (adminPanel) adminPanel.style.display = 'block';
+            
+            console.log('✅ المستخدم مسجل الدخول:', profile.getEmail());
         } else {
             authBtn.innerHTML = `
                 <i class="fas fa-sign-in-alt"></i>
@@ -191,6 +324,8 @@ function updateAuthUI() {
             `;
             authBtn.title = 'تسجيل الدخول';
             if (adminPanel) adminPanel.style.display = 'none';
+            
+            console.log('ℹ️ المستخدم غير مسجل الدخول');
         }
     } catch (error) {
         console.error('❌ خطأ في تحديث واجهة المصادقة:', error);
@@ -210,7 +345,7 @@ function toggleSearch() {
     }
 }
 
-// البحث
+// البحث المحسن
 function performSearch() {
     if (!searchInput) return;
     
@@ -221,11 +356,31 @@ function performSearch() {
     } else {
         filteredBooks = currentBooks.filter(book => 
             book.name.toLowerCase().includes(query) ||
-            (book.description && book.description.toLowerCase().includes(query))
+            (book.description && book.description.toLowerCase().includes(query)) ||
+            (book.author && book.author.toLowerCase().includes(query))
         );
     }
     
     renderBooks();
+    
+    // حفظ تاريخ البحث
+    if (query) {
+        saveSearchToHistory(query);
+    }
+}
+
+// حفظ تاريخ البحث
+function saveSearchToHistory(query) {
+    try {
+        const searches = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+        if (!searches.includes(query)) {
+            searches.unshift(query);
+            if (searches.length > 10) searches.pop();
+            localStorage.setItem('searchHistory', JSON.stringify(searches));
+        }
+    } catch (error) {
+        console.warn('⚠️ خطأ في حفظ تاريخ البحث:', error);
+    }
 }
 
 // معالجة رفع الملفات
@@ -265,15 +420,19 @@ async function handleFileUpload(event) {
     event.target.value = '';
 }
 
-// رفع ملف واحد
+// رفع ملف واحد مع معالجة أخطاء محسنة
 async function uploadFile(file, current, total) {
     try {
         showUploadProgress(true);
         updateUploadProgress(0, `رفع ${current} من ${total}: ${file.name}`);
         
+        console.log(`📤 بدء رفع ملف: ${file.name} (${formatFileSize(file.size)})`);
+        
+        // إنشاء metadata للملف
         const metadata = {
             name: file.name,
-            description: `كتاب PDF - مكتبة إقرأ معنا - ${new Date().toLocaleDateString('ar-SA')}`
+            description: `كتاب PDF - مكتبة إقرأ معنا - ${new Date().toLocaleDateString('ar-SA')}`,
+            parents: ['root'] // يمكنك تغيير هذا لمجلد معين
         };
         
         // رفع الملف باستخدام multipart
@@ -281,8 +440,20 @@ async function uploadFile(file, current, total) {
         form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
         form.append('file', file);
         
+        // الحصول على access token
+        if (!authInstance || !authInstance.currentUser.get().isSignedIn()) {
+            throw new Error('المستخدم غير مسجل الدخول');
+        }
+        
+        const accessToken = authInstance.currentUser.get().getAuthResponse().access_token;
+        
+        if (!accessToken) {
+            throw new Error('لا يمكن الحصول على رمز الوصول');
+        }
+        
         const xhr = new XMLHttpRequest();
         
+        // تتبع تقدم الرفع
         xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) {
                 const progress = Math.round((e.loaded / e.total) * 100);
@@ -293,17 +464,22 @@ async function uploadFile(file, current, total) {
         await new Promise((resolve, reject) => {
             xhr.onload = () => {
                 if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    console.log('✅ تم رفع الملف بنجاح:', response.name);
                     updateUploadProgress(100, `تم رفع: ${file.name}`);
                     showNotification(`تم رفع ${file.name} بنجاح`, 'success');
-                    resolve();
+                    resolve(response);
                 } else {
+                    console.error('❌ خطأ HTTP:', xhr.status, xhr.responseText);
                     reject(new Error(`خطأ HTTP: ${xhr.status}`));
                 }
             };
             
-            xhr.onerror = () => reject(new Error('خطأ في الشبكة'));
+            xhr.onerror = () => {
+                console.error('❌ خطأ في الشبكة');
+                reject(new Error('خطأ في الشبكة'));
+            };
             
-            const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
             xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
             xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
             xhr.send(form);
@@ -311,7 +487,16 @@ async function uploadFile(file, current, total) {
         
     } catch (error) {
         console.error('❌ خطأ في رفع الملف:', error);
-        showNotification(`خطأ في رفع ${file.name}`, 'error');
+        updateUploadProgress(0, 'فشل الرفع');
+        
+        let errorMessage = `خطأ في رفع ${file.name}`;
+        if (error.message.includes('unauthorized') || error.message.includes('401')) {
+            errorMessage = 'انتهت صلاحية تسجيل الدخول. يرجى تسجيل الدخول مرة أخرى.';
+        } else if (error.message.includes('quota')) {
+            errorMessage = 'تم تجاوز حد التخزين في Google Drive.';
+        }
+        
+        showNotification(errorMessage, 'error');
     }
 }
 
@@ -333,19 +518,19 @@ function updateUploadProgress(progress, text) {
     if (progress === 100 && progressFill) {
         progressFill.classList.add('animate');
         setTimeout(() => {
-            progressFill.classList.remove('animate');
+            if (progressFill) progressFill.classList.remove('animate');
             showUploadProgress(false);
         }, 1000);
     }
 }
 
-// تحميل الكتب
+// تحميل الكتب مع معالجة أخطاء محسنة
 async function loadBooks() {
     try {
         console.log('📚 تحميل الكتب...');
         
-        if (!isSignedIn || typeof gapi === 'undefined' || !gapi.client || !gapi.client.drive) {
-            console.log('المستخدم غير مسجل الدخول أو API غير متوفر');
+        if (!isSignedIn || !authInstance) {
+            console.log('ℹ️ المستخدم غير مسجل الدخول أو API غير متوفر');
             currentBooks = [];
             filteredBooks = [];
             renderBooks();
@@ -353,30 +538,50 @@ async function loadBooks() {
             return;
         }
         
+        // التحقق من صحة الاتصال
+        if (!gapi.client || !gapi.client.drive) {
+            throw new Error('Google Drive API غير متوفر');
+        }
+        
+        console.log('🔍 البحث عن ملفات PDF...');
+        
         const response = await gapi.client.drive.files.list({
             q: "mimeType='application/pdf' and trashed=false",
-            fields: 'files(id,name,size,createdTime,description,webContentLink,webViewLink)',
+            fields: 'files(id,name,size,createdTime,modifiedTime,description,webContentLink,webViewLink,thumbnailLink)',
             orderBy: 'createdTime desc',
             pageSize: 100
         });
         
-        currentBooks = response.result.files.map(file => ({
-            id: file.id,
-            name: file.name.replace('.pdf', ''),
-            size: formatFileSize(file.size),
-            rawSize: parseInt(file.size) || 0,
-            date: formatDate(file.createdTime),
-            rawDate: new Date(file.createdTime),
-            description: file.description || '',
-            downloadUrl: file.webContentLink,
-            viewUrl: `https://drive.google.com/file/d/${file.id}/preview`,
-            directViewUrl: file.webViewLink
-        }));
+        console.log(`📊 تم العثور على ${response.result.files.length} ملف PDF`);
+        
+        currentBooks = response.result.files.map(file => {
+            // استخراج اسم المؤلف من اسم الملف إن أمكن
+            const fileName = file.name.replace('.pdf', '');
+            const parts = fileName.split(' - ');
+            const bookName = parts[0] || fileName;
+            const author = parts[1] || 'غير محدد';
+            
+            return {
+                id: file.id,
+                name: bookName.trim(),
+                author: author.trim(),
+                size: formatFileSize(file.size),
+                rawSize: parseInt(file.size) || 0,
+                date: formatDate(file.createdTime),
+                rawDate: new Date(file.createdTime),
+                modifiedDate: formatDate(file.modifiedTime),
+                description: file.description || `كتاب ${bookName}`,
+                downloadUrl: file.webContentLink,
+                viewUrl: `https://drive.google.com/file/d/${file.id}/preview`,
+                directViewUrl: file.webViewLink,
+                thumbnailUrl: file.thumbnailLink
+            };
+        });
         
         applyCurrentFilter();
         updateStats();
         
-        console.log(`✅ تم تحميل ${currentBooks.length} كتاب`);
+        console.log(`✅ تم تحميل ${currentBooks.length} كتاب بنجاح`);
         
     } catch (error) {
         console.error('❌ خطأ في تحميل الكتب:', error);
@@ -385,10 +590,15 @@ async function loadBooks() {
         renderBooks();
         updateStats();
         
-        if (error.status === 401) {
-            showNotification('انتهت صلاحية تسجيل الدخول', 'warning');
+        let errorMessage = 'خطأ في تحميل الكتب';
+        if (error.status === 401 || error.message.includes('unauthorized')) {
+            errorMessage = 'انتهت صلاحية تسجيل الدخول';
+            showNotification(errorMessage, 'warning');
+        } else if (error.status === 403) {
+            errorMessage = 'لا تملك صلاحية الوصول لـ Google Drive';
+            showNotification(errorMessage, 'error');
         } else {
-            showNotification('خطأ في تحميل الكتب', 'error');
+            showNotification(errorMessage, 'error');
         }
     }
 }
@@ -400,6 +610,7 @@ function applyCurrentFilter() {
             filteredBooks = [...currentBooks].sort((a, b) => b.rawDate - a.rawDate);
             break;
         case 'popular':
+            // ترتيب حسب حجم الملف (افتراض أن الملفات الأكبر أكثر شيوعاً)
             filteredBooks = [...currentBooks].sort((a, b) => b.rawSize - a.rawSize);
             break;
         default:
@@ -423,7 +634,7 @@ function setActiveFilter(filter) {
     applyCurrentFilter();
 }
 
-// عرض الكتب
+// عرض الكتب المحسن
 function renderBooks() {
     if (!booksGrid || !emptyState) return;
     
@@ -452,11 +663,21 @@ function renderBooks() {
                 ` : ''}
                 
                 <div class="book-cover">
-                    <i class="fas fa-book book-icon"></i>
+                    ${book.thumbnailUrl ? 
+                        `<img src="${book.thumbnailUrl}" alt="${escapeHtml(book.name)}" loading="lazy">` :
+                        `<i class="fas fa-book book-icon"></i>`
+                    }
                 </div>
                 
                 <div class="book-info">
                     <h3 class="book-title" title="${escapeHtml(book.name)}">${truncateText(book.name, 50)}</h3>
+                    
+                    ${book.author !== 'غير محدد' ? `
+                        <p class="book-author" title="${escapeHtml(book.author)}">
+                            <i class="fas fa-user"></i>
+                            ${truncateText(book.author, 30)}
+                        </p>
+                    ` : ''}
                     
                     <div class="book-meta">
                         <span class="book-size">
@@ -489,6 +710,8 @@ function renderBooks() {
 function viewBook(bookId, bookName, viewUrl) {
     if (!pdfModal || !pdfTitle || !pdfFrame) return;
     
+    console.log('👁️ فتح كتاب للقراءة:', bookName);
+    
     pdfTitle.textContent = bookName;
     pdfFrame.src = viewUrl;
     pdfModal.classList.add('active');
@@ -512,14 +735,19 @@ function downloadCurrentPdf() {
 
 // تحميل كتاب
 function downloadBook(downloadUrl, bookName) {
+    console.log('📥 تحميل كتاب:', bookName);
+    
+    // زيادة عداد التحميلات
     totalDownloads++;
     localStorage.setItem('totalDownloads', totalDownloads.toString());
     updateDownloadsCount();
     
+    // تحميل الملف
     const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = `${bookName}.pdf`;
     link.target = '_blank';
+    link.rel = 'noopener noreferrer';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -540,6 +768,8 @@ async function performDelete() {
     try {
         closeConfirmModal();
         
+        console.log('🗑️ حذف كتاب:', bookToDelete.name);
+        
         const bookCard = document.querySelector(`[data-book-id="${bookToDelete.id}"]`);
         if (bookCard) bookCard.classList.add('loading');
         
@@ -547,12 +777,21 @@ async function performDelete() {
             fileId: bookToDelete.id
         });
         
+        console.log('✅ تم حذف الكتاب بنجاح');
         showNotification(`تم حذف: ${bookToDelete.name}`, 'success');
         await loadBooks();
         
     } catch (error) {
         console.error('❌ خطأ في حذف الكتاب:', error);
-        showNotification(`خطأ في حذف: ${bookToDelete.name}`, 'error');
+        
+        let errorMessage = `خطأ في حذف: ${bookToDelete.name}`;
+        if (error.status === 403) {
+            errorMessage = 'لا تملك صلاحية حذف هذا الملف';
+        } else if (error.status === 404) {
+            errorMessage = 'الملف غير موجود';
+        }
+        
+        showNotification(errorMessage, 'error');
         
         const bookCard = document.querySelector(`[data-book-id="${bookToDelete.id}"]`);
         if (bookCard) bookCard.classList.remove('loading');
@@ -598,17 +837,22 @@ function hideLoading() {
         setTimeout(() => {
             loadingOverlay.style.display = 'none';
         }, 300);
-    }, 1000);
+    }, 1500);
 }
 
-// إظهار الإشعارات
+// إظهار الإشعارات المحسن
 function showNotification(message, type = 'info') {
+    console.log(`🔔 إشعار (${type}):`, message);
+    
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
         <div class="notification-content">
             <i class="fas fa-${getNotificationIcon(type)}"></i>
             <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     `;
     
@@ -624,10 +868,34 @@ function showNotification(message, type = 'info') {
         z-index: 10000;
         transform: translateX(400px);
         transition: transform 0.3s ease;
-        max-width: 300px;
+        max-width: 350px;
         font-family: var(--font-family);
         font-size: 0.9rem;
+        direction: rtl;
     `;
+    
+    // ستايل زر الإغلاق
+    const style = document.createElement('style');
+    style.textContent = `
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            margin-left: 10px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .notification-close:hover {
+            opacity: 1;
+        }
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    `;
+    document.head.appendChild(style);
     
     document.body.appendChild(notification);
     
@@ -635,14 +903,20 @@ function showNotification(message, type = 'info') {
         notification.style.transform = 'translateX(0)';
     }, 100);
     
-    setTimeout(() => {
-        notification.style.transform = 'translateX(400px)';
-        setTimeout(() => {
-            if (document.body.contains(notification)) {
-                document.body.removeChild(notification);
-            }
-        }, 300);
-    }, 4000);
+    // إخفاء تلقائي
+    const autoHideTimeout = setTimeout(() => {
+        if (document.body.contains(notification)) {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }
+    }, type === 'error' ? 8000 : 5000);
+    
+    // إلغاء الإخفاء التلقائي عند hover
+    notification.addEventListener('mouseenter', () => clearTimeout(autoHideTimeout));
 }
 
 // الحصول على أيقونة الإشعار
@@ -696,6 +970,7 @@ function truncateText(text, maxLength) {
 
 // تأمين HTML
 function escapeHtml(unsafe) {
+    if (!unsafe) return '';
     return unsafe
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -719,11 +994,13 @@ function debounce(func, wait) {
 
 // اختصارات لوحة المفاتيح
 function handleKeyboardShortcuts(e) {
+    // Ctrl/Cmd + K للبحث
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         toggleSearch();
     }
     
+    // Escape لإغلاق النوافذ
     if (e.key === 'Escape') {
         if (pdfModal && pdfModal.classList.contains('active')) {
             closePdfModal();
@@ -732,6 +1009,13 @@ function handleKeyboardShortcuts(e) {
         } else if (searchContainer && searchContainer.classList.contains('active')) {
             toggleSearch();
         }
+    }
+    
+    // F5 لإعادة تحميل الكتب
+    if (e.key === 'F5' && isSignedIn) {
+        e.preventDefault();
+        loadBooks();
+        showNotification('تم إعادة تحميل الكتب', 'info');
     }
 }
 
@@ -746,28 +1030,36 @@ window.addEventListener('unhandledrejection', (event) => {
     showNotification('خطأ في الاتصال بالخدمة', 'error');
 });
 
+// فحص الاتصال بالإنترنت
+window.addEventListener('online', () => {
+    showNotification('تم استعادة الاتصال بالإنترنت', 'success');
+    if (isSignedIn) loadBooks();
+});
+
+window.addEventListener('offline', () => {
+    showNotification('تم فقدان الاتصال بالإنترنت', 'warning');
+});
+
 // إعادة تحميل دورية للكتب (كل 5 دقائق)
 setInterval(() => {
-    if (isSignedIn) {
+    if (isSignedIn && navigator.onLine) {
+        console.log('🔄 إعادة تحميل دورية للكتب...');
         loadBooks();
     }
 }, 5 * 60 * 1000);
 
-// تحسين الأداء
-function lazyLoadImages() {
-    const images = document.querySelectorAll('img[data-src]');
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-                imageObserver.unobserve(img);
-            }
-        });
-    });
-    
-    images.forEach(img => imageObserver.observe(img));
-}
+// تنظيف الذاكرة عند إغلاق الصفحة
+window.addEventListener('beforeunload', () => {
+    if (pdfFrame) pdfFrame.src = '';
+    currentPdfUrl = '';
+});
+
+// رسالة ترحيب في الكونسول
+console.log(`
+🎉 مكتبة إقرأ معنا
+📚 المكتبة الرقمية العربية
+🔗 ${window.location.origin}
+✅ JavaScript محمل ومُفعل
+`);
 
 console.log('📚 مكتبة إقرأ معنا - script.js تم تحميله بنجاح!');
