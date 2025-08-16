@@ -8,12 +8,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="description" content="مكتبة رقمية عربية مجانية لقراءة وتحميل الكتب">
+    <meta name="theme-color" content="#f9f7f4">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
 <body>
     <!-- شريط العلوي -->
     <header class="header">
         <div class="container">
-            <h1 class="main-title">📚 مكتبة إقرأ معنا</h1>
+            <div class="topbar">
+                <div class="brand">
+                    <i data-lucide="book-open" class="brand-icon"></i>
+                    <span class="brand-name">مكتبة إقرأ معنا</span>
+                </div>
+                <div class="topbar-actions">
+                    <a href="admin.html" class="action-link">
+                        <i data-lucide="shield"></i>
+                        <span>لوحة الإدارة</span>
+                    </a>
+                    <button id="theme-toggle" class="icon-button" aria-label="تبديل الوضع">
+                        <i data-lucide="moon-star"></i>
+                    </button>
+                </div>
+            </div>
+            <h1 class="main-title">مكتبة إقرأ معنا</h1>
             <p class="subtitle">مكتبتك الرقمية المجانية للمعرفة والثقافة العربية</p>
         </div>
     </header>
@@ -23,13 +40,19 @@
         <!-- شريط البحث والفلترة -->
         <section class="search-section">
             <div class="search-bar">
-                <input type="text" id="search-input" placeholder="🔍 ابحث في الكتب..." class="search-input">
-                <select id="category-filter" class="category-filter">
-                    <option value="الكل">جميع الأقسام</option>
-                    <option value="عام">عام</option>
-                    <option value="تعليمي">تعليمي</option>
-                    <option value="أدبي">أدبي</option>
-                </select>
+                <div class="input-with-icon">
+                    <i data-lucide="search" class="input-icon"></i>
+                    <input type="text" id="search-input" placeholder="ابحث في الكتب..." class="search-input" autocomplete="off">
+                </div>
+                <div class="select-with-icon">
+                    <i data-lucide="filter" class="input-icon"></i>
+                    <select id="category-filter" class="category-filter">
+                        <option value="الكل">جميع الأقسام</option>
+                        <option value="عام">عام</option>
+                        <option value="تعليمي">تعليمي</option>
+                        <option value="أدبي">أدبي</option>
+                    </select>
+                </div>
             </div>
         </section>
 
@@ -67,7 +90,7 @@
             </div>
             
             <div id="no-results" class="empty-state" style="display: none;">
-                <h3>📖 لم يتم العثور على نتائج</h3>
+                <h3>لم يتم العثور على نتائج</h3>
                 <p>جرب البحث بكلمات مختلفة أو اختر قسم آخر</p>
             </div>
         </section>
@@ -78,7 +101,7 @@
         <div class="container">
             <p>&copy; 2025 مكتبة إقرأ معنا - جميع الحقوق محفوظة</p>
             <p>مكتبة مجانية لنشر المعرفة والثقافة العربية</p>
-            <a href="admin.html" class="admin-link">🔒 لوحة الإدارة</a>
+            <a href="admin.html" class="admin-link">لوحة الإدارة</a>
         </div>
     </footer>
 

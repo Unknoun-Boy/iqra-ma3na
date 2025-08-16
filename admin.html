@@ -6,11 +6,28 @@
     <title>لوحة إدارة مكتبة إقرأ معنا</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#f9f7f4">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
 <body>
     <header class="header admin-header">
         <div class="container">
-            <h1 class="main-title">🛠️ لوحة إدارة المكتبة</h1>
+            <div class="topbar">
+                <div class="brand">
+                    <i data-lucide="book-open" class="brand-icon"></i>
+                    <span class="brand-name">مكتبة إقرأ معنا</span>
+                </div>
+                <div class="topbar-actions">
+                    <a href="index.html" class="action-link">
+                        <i data-lucide="home"></i>
+                        <span>العودة للمكتبة</span>
+                    </a>
+                    <button id="theme-toggle" class="icon-button" aria-label="تبديل الوضع">
+                        <i data-lucide="moon-star"></i>
+                    </button>
+                </div>
+            </div>
+            <h1 class="main-title">لوحة إدارة المكتبة</h1>
             <p class="subtitle">إدارة وتنظيم مكتبة إقرأ معنا الرقمية</p>
         </div>
     </header>
@@ -19,11 +36,11 @@
         <!-- نموذج تسجيل الدخول -->
         <section id="login-section" class="login-section">
             <div class="login-form">
-                <h2>🔐 تسجيل الدخول</h2>
+                <h2>تسجيل الدخول</h2>
                 <p>أدخل كلمة مرور الإدارة للوصول إلى لوحة التحكم</p>
                 <div class="form-group">
                     <input type="password" id="admin-password" placeholder="كلمة مرور الإدارة" class="admin-input">
-                    <button onclick="verifyAdminPassword()" class="btn btn-primary">دخول</button>
+                    <button onclick="verifyAdminPassword()" class="btn btn-primary"><i data-lucide="log-in"></i><span>دخول</span></button>
                 </div>
                 <p class="login-note">كلمة المرور الافتراضية: <code>admin123</code></p>
             </div>
@@ -35,33 +52,33 @@
             <div class="stats-grid">
                 <div class="stat-card admin-stat">
                     <span class="stat-number" id="admin-total-books">0</span>
-                    <span class="stat-label">إجمالي الكتب</span>
+                    <span class="stat-label"><i data-lucide="book"></i> إجمالي الكتب</span>
                 </div>
                 <div class="stat-card admin-stat">
                     <span class="stat-number" id="admin-general-count">0</span>
-                    <span class="stat-label">عام</span>
+                    <span class="stat-label"><i data-lucide="layers"></i> عام</span>
                 </div>
                 <div class="stat-card admin-stat">
                     <span class="stat-number" id="admin-educational-count">0</span>
-                    <span class="stat-label">تعليمي</span>
+                    <span class="stat-label"><i data-lucide="graduation-cap"></i> تعليمي</span>
                 </div>
                 <div class="stat-card admin-stat">
                     <span class="stat-number" id="admin-literary-count">0</span>
-                    <span class="stat-label">أدبي</span>
+                    <span class="stat-label"><i data-lucide="feather"></i> أدبي</span>
                 </div>
             </div>
 
             <!-- نموذج إضافة كتاب -->
             <div class="add-book-section">
-                <h2>➕ إضافة كتاب جديد</h2>
+                <h2>إضافة كتاب جديد</h2>
                 <form id="add-book-form" class="add-book-form" onsubmit="handleAddBook(event)">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="book-title">📖 عنوان الكتاب</label>
+                            <label for="book-title">عنوان الكتاب</label>
                             <input type="text" id="book-title" required maxlength="200" placeholder="أدخل عنوان الكتاب">
                         </div>
                         <div class="form-group">
-                            <label for="book-category">🏷️ القسم</label>
+                            <label for="book-category">القسم</label>
                             <select id="book-category" required>
                                 <option value="">اختر القسم</option>
                                 <option value="عام">عام</option>
@@ -71,14 +88,14 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="pdf-file">📎 ملف الكتاب (PDF)</label>
+                        <label for="pdf-file">ملف الكتاب (PDF)</label>
                         <input type="file" id="pdf-file" accept=".pdf" required>
                         <small class="file-info">الحد الأقصى: 50 ميغابايت - PDF فقط</small>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-success">
-                            <span id="upload-text">📤 إضافة الكتاب</span>
-                            <span id="upload-loading" style="display: none;">⏳ جاري الرفع...</span>
+                            <span id="upload-text"><i data-lucide="upload-cloud"></i> إضافة الكتاب</span>
+                            <span id="upload-loading" style="display: none;"><i data-lucide="loader"></i> جاري الرفع...</span>
                         </button>
                     </div>
                 </form>
@@ -86,7 +103,7 @@
 
             <!-- قائمة الكتب للإدارة -->
             <div class="admin-books-section">
-                <h2>📚 إدارة الكتب الموجودة</h2>
+                <h2>إدارة الكتب الموجودة</h2>
                 <div id="admin-books-list" class="admin-books-list">
                     <!-- سيتم إدراج الكتب هنا -->
                 </div>
@@ -94,8 +111,8 @@
 
             <!-- أزرار الإدارة -->
             <div class="admin-actions">
-                <button onclick="refreshAdminBooks()" class="btn btn-secondary">🔄 تحديث القائمة</button>
-                <a href="index.html" class="btn btn-outline">🏠 العودة للمكتبة</a>
+                <button onclick="refreshAdminBooks()" class="btn btn-secondary"><i data-lucide="refresh-cw"></i><span>تحديث القائمة</span></button>
+                <a href="index.html" class="btn btn-outline"><i data-lucide="home"></i><span>العودة للمكتبة</span></a>
             </div>
         </section>
     </main>
@@ -111,7 +128,7 @@
                 loadAdminStats();
                 loadAdminBooks();
             } else {
-                alert('❌ كلمة مرور خاطئة');
+                showAlert('كلمة مرور خاطئة', 'error');
                 document.getElementById('admin-password').focus();
             }
         }
