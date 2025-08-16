@@ -3,7 +3,7 @@ const SUPABASE_URL = 'https://wwejcaljeigmgtptrpli.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3ZWpjYWxqZWlnbWd0cHRycGxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4OTYzMzksImV4cCI6MjA2NzQ3MjMzOX0.hdJt5iWnLRKzBx92Ez8WJfArnRMGtf4q8NvOPoT7U-o';
 
 // إنشاء عميل Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase;
 
 // إعدادات المكتبة
 const CONFIG = {
@@ -11,6 +11,49 @@ const CONFIG = {
     allowedTypes: ['application/pdf'],
     categories: ['عام', 'تعليمي', 'أدبي']
 };
+
+// الثيم
+const THEME_STORAGE_KEY = 'preferred-theme';
+
+function updateThemeMetaColor(theme) {
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', theme === 'dark' ? '#0f1216' : '#f9f7f4');
+}
+
+function applySavedTheme() {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    const theme = saved === 'dark' || saved === 'light' ? saved : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeToggleIcon(theme);
+    updateThemeMetaColor(theme);
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(THEME_STORAGE_KEY, next);
+    updateThemeToggleIcon(next);
+    updateThemeMetaColor(next);
+}
+
+function updateThemeToggleIcon(theme) {
+    const toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+    toggle.innerHTML = theme === 'dark' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon-star"></i>';
+    refreshIcons();
+}
+
+function refreshIcons() {
+    if (window.lucide && window.lucide.createIcons) {
+        window.lucide.createIcons();
+    }
+}
 
 // متغيرات عامة
 let allBooks = [];
@@ -72,14 +115,17 @@ function displayBooks(books) {
                 </div>
                 <div class="book-actions">
                     <a href="${book.file_url}" target="_blank" rel="noopener" class="btn btn-read">
-                        📖 قراءة
+                        <i data-lucide="book-open"></i>
+                        <span>قراءة</span>
                     </a>
                     <a href="${book.file_url}" download="${escapeHtml(book.title)}.pdf" class="btn btn-download">
-                        ⬇️ تحميل
+                        <i data-lucide="download"></i>
+                        <span>تحميل</span>
                     </a>
                 </div>
             </div>
         `).join('');
+        refreshIcons();
     }
 }
 
@@ -218,7 +264,7 @@ async function handleAddBook(event) {
         }
 
         // نجح الحفظ
-        showAlert('✅ تم إضافة الكتاب بنجاح!', 'success');
+        showAlert('تم إضافة الكتاب بنجاح!', 'success');
         
         // تحديث القوائم
         allBooks.unshift(bookData);
@@ -272,7 +318,7 @@ async function deleteBook(bookId, fileName) {
         displayBooks(filteredBooks);
         loadAdminBooks();
         
-        showAlert('✅ تم حذف الكتاب بنجاح', 'success');
+        showAlert('تم حذف الكتاب بنجاح', 'success');
         
     } catch (error) {
         console.error('خطأ في حذف الكتاب:', error);
@@ -306,11 +352,13 @@ async function loadAdminBooks() {
             </div>
             <div class="admin-book-actions">
                 <button onclick="deleteBook(${book.id}, '${book.file_name}')" class="btn btn-delete">
-                    🗑️ حذف
+                    <i data-lucide="trash-2"></i>
+                    <span>حذف</span>
                 </button>
             </div>
         </div>
     `).join('');
+    refreshIcons();
 }
 
 // تحديث إحصائيات الإدارة
@@ -322,7 +370,7 @@ async function loadAdminStats() {
 async function refreshAdminBooks() {
     await loadBooks();
     loadAdminBooks();
-    showAlert('✅ تم تحديث القائمة', 'success');
+    showAlert('تم تحديث القائمة', 'success');
 }
 
 // =======================
@@ -398,10 +446,34 @@ function showError(message) {
     showAlert(message, 'error');
 }
 
+// Toasts
+function ensureToastContainer() {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    return container;
+}
+
 // إظهار تنبيه
 function showAlert(message, type = 'info') {
-    // يمكن تحسين هذا لاحقاً بتصميم أفضل
-    alert(message);
+    const container = ensureToastContainer();
+    const toast = document.createElement('div');
+    const typeClass = type === 'success' ? 'toast-success' : type === 'error' ? 'toast-error' : 'toast-info';
+    const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info';
+    toast.className = `toast ${typeClass}`;
+    toast.innerHTML = `<i data-lucide="${icon}"></i><span>${escapeHtml(String(message))}</span>`;
+    container.appendChild(toast);
+    refreshIcons();
+
+    const remove = () => {
+        if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+    };
+
+    setTimeout(remove, 3500);
+    toast.addEventListener('click', remove);
 }
 
 // تعيين حالة الرفع
@@ -438,8 +510,23 @@ function loadSupabaseLibrary() {
 // بدء التطبيق عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', async function() {
     try {
+        // تطبيق الثيم المحفوظ
+        applySavedTheme();
+
+        // تفعيل تبديل الثيم
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', toggleTheme);
+        }
+
+        // تهيئة أيقونات lucide في المحتوى الثابت
+        refreshIcons();
+
         // تحميل مكتبة Supabase
         await loadSupabaseLibrary();
+
+        // إنشاء عميل Supabase بعد تحميل المكتبة
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // إعداد مستمعي الأحداث
         setupSearchListeners();
@@ -461,3 +548,4 @@ window.deleteBook = deleteBook;
 window.loadAdminStats = loadAdminStats;
 window.loadAdminBooks = loadAdminBooks;
 window.refreshAdminBooks = refreshAdminBooks;
+window.showAlert = showAlert;
