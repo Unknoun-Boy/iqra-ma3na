@@ -100,27 +100,77 @@
         </section>
     </main>
 
+    <script src="config.js"></script>
     <script type="module" src="app.js"></script>
     <script>
-        // التحقق من كلمة مرور الإدارة
+        // Admin session key + duration (ms)
+        const ADMIN_KEY = 'iqra_admin_auth';
+        const ADMIN_TTL = 1000 * 60 * 60; // 1 hour
+
+        function setAdminSession() {
+            const payload = { ts: Date.now() };
+            localStorage.setItem(ADMIN_KEY, JSON.stringify(payload));
+        }
+
+        function clearAdminSession() {
+            localStorage.removeItem(ADMIN_KEY);
+        }
+
+        function isAdminSessionValid() {
+            try {
+                const raw = localStorage.getItem(ADMIN_KEY);
+                if (!raw) return false;
+                const obj = JSON.parse(raw);
+                return (Date.now() - (obj.ts || 0)) < ADMIN_TTL;
+            } catch (e) { return false; }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            waitForSupabaseThenLoad();
+        }
+
         function verifyAdminPassword() {
             const password = document.getElementById('admin-password').value;
             if (password === 'admin123') {
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                loadAdminStats();
-                loadAdminBooks();
+                setAdminSession();
+                showAdminPanel();
             } else {
                 alert('❌ كلمة مرور خاطئة');
                 document.getElementById('admin-password').focus();
             }
         }
 
-        // السماح بالدخول بالضغط على Enter
-        document.getElementById('admin-password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                verifyAdminPassword();
+        function waitForSupabaseThenLoad(timeout = 5000) {
+            const start = Date.now();
+            const tryLoad = () => {
+                if (window.isSupabaseReady && window.isSupabaseReady()) {
+                    loadAdminStats();
+                    loadAdminBooks();
+                    return;
+                }
+                if (Date.now() - start > timeout) {
+                    console.warn('Supabase client did not initialize in time.');
+                    return;
+                }
+                setTimeout(tryLoad, 200);
+            };
+            // Attempt to initialize (harmless if already initialized)
+            if (window.initSupabase) window.initSupabase();
+            tryLoad();
+        }
+
+        // Auto-login if session exists
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isAdminSessionValid()) {
+                showAdminPanel();
             }
+        });
+
+        // Allow Enter to submit
+        document.getElementById('admin-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') verifyAdminPassword();
         });
     </script>
 </body>

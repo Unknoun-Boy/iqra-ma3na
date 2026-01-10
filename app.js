@@ -1,9 +1,40 @@
-// إعدادات Supabase مع بياناتك
-const SUPABASE_URL = 'https://wwejcaljeigmgtptrpli.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3ZWpjYWxqZWlnbWd0cHRycGxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4OTYzMzksImV4cCI6MjA2NzQ3MjMzOX0.hdJt5iWnLRKzBx92Ez8WJfArnRMGtf4q8NvOPoT7U-o';
+// Supabase client will be created at startup after the Supabase library and
+// `config.js` are loaded. See `config.js` for where to place your keys.
+let supabase = null;
 
-// إنشاء عميل Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Create the Supabase client if configuration and library are available
+function initSupabase() {
+    if (supabase) return;
+
+    const cfg = window.SUPABASE_CONFIG || {};
+    const url = cfg.url || cfg.SUPABASE_URL || null;
+    const anonKey = cfg.anonKey || cfg.SUPABASE_ANON_KEY || null;
+
+    if (!url || !anonKey) {
+        console.warn('Supabase config missing: please add config.js with SUPABASE_CONFIG');
+        return;
+    }
+
+    if (!window.supabase) {
+        console.warn('Supabase library not loaded yet. Call initSupabase after loading the library.');
+        return;
+    }
+
+    supabase = window.supabase.createClient(url, anonKey);
+}
+
+function ensureSupabase() {
+    if (!supabase) {
+        showError('خدمة البيانات غير مهيئة. يرجى التحقق من `config.js` ومحاولة إعادة التحميل.');
+        return false;
+    }
+    return true;
+}
+
+// Expose helpers for pages that load this module
+window.initSupabase = initSupabase;
+window.isSupabaseReady = function() { return !!supabase; };
+window.getSupabaseClient = function() { return supabase; };
 
 // إعدادات المكتبة
 const CONFIG = {
@@ -22,6 +53,7 @@ let filteredBooks = [];
 
 // تحميل جميع الكتب من Supabase
 async function loadBooks() {
+    if (!ensureSupabase()) return;
     try {
         showLoading(true);
         
@@ -153,6 +185,7 @@ function setupSearchListeners() {
 // إضافة كتاب جديد
 async function handleAddBook(event) {
     event.preventDefault();
+    if (!ensureSupabase()) return;
     
     const title = document.getElementById('book-title')?.value.trim();
     const category = document.getElementById('book-category')?.value;
@@ -240,6 +273,7 @@ async function handleAddBook(event) {
 
 // حذف كتاب
 async function deleteBook(bookId, fileName) {
+    if (!ensureSupabase()) return;
     if (!confirm('هل أنت متأكد من حذف هذا الكتاب؟\nهذا الإجراء لا يمكن التراجع عنه.')) {
         return;
     }
@@ -440,6 +474,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         // تحميل مكتبة Supabase
         await loadSupabaseLibrary();
+        // تهيئة عميل Supabase إذا كانت المفات محفوظة في config.js
+        initSupabase();
         
         // إعداد مستمعي الأحداث
         setupSearchListeners();

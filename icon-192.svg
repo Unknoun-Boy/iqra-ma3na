@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 24 24" fill="none">
+  <rect width="24" height="24" rx="4" fill="#d4851c" />
+  <path d="M6 4h9a2 2 0 0 1 2 2v12" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M6 20V6a2 2 0 0 1 2-2h8" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="12" y="15" font-size="6" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">إقرأ</text>
+</svg>
