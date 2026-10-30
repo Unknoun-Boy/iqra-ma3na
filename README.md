@@ -5,8 +5,22 @@ https://unknoun-boy.github.io/iqra-ma3na/
 
 ## Setup
 
-1. Create `config.js` in the project root (there is a placeholder included).
-2. Fill `window.SUPABASE_CONFIG = { url: 'https://...supabase.co', anonKey: 'public-anon-key' }`.
-3. Open `index.html` in a static host (or `admin.html` for admin panel).
+This is a simple static website. Open `index.html` in a browser or deploy the
+project to any static host.
 
-Note: For security, do not commit production secret keys; use environment injection on deployment.
+## Add a book
+
+Create one of these folders in GitHub:
+
+```text
+books/general/
+books/educational/
+books/literary/
+```
+
+Then open the folder, choose **Add file → Upload files**, drag in a PDF, and
+commit the change. The website finds the PDF automatically; its filename is
+used as the book title. Use clear filenames such as `learning-basics.pdf`.
+
+The site uses GitHub's public API, so it is best for a small library. Only
+publish books that you are allowed to distribute.

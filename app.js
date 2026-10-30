@@ -1,499 +1,151 @@
-// Supabase client will be created at startup after the Supabase library and
-// `config.js` are loaded. See `config.js` for where to place your keys.
-let supabase = null;
-
-// Create the Supabase client if configuration and library are available
-function initSupabase() {
-    if (supabase) return;
-
-    const cfg = window.SUPABASE_CONFIG || {};
-    const url = cfg.url || cfg.SUPABASE_URL || null;
-    const anonKey = cfg.anonKey || cfg.SUPABASE_ANON_KEY || null;
-
-    if (!url || !anonKey) {
-        console.warn('Supabase config missing: please add config.js with SUPABASE_CONFIG');
-        return;
-    }
-
-    if (!window.supabase) {
-        console.warn('Supabase library not loaded yet. Call initSupabase after loading the library.');
-        return;
-    }
-
-    supabase = window.supabase.createClient(url, anonKey);
-}
-
-function ensureSupabase() {
-    if (!supabase) {
-        showError('خدمة البيانات غير مهيئة. يرجى التحقق من `config.js` ومحاولة إعادة التحميل.');
-        return false;
-    }
-    return true;
-}
-
-// Expose helpers for pages that load this module
-window.initSupabase = initSupabase;
-window.isSupabaseReady = function() { return !!supabase; };
-window.getSupabaseClient = function() { return supabase; };
-
-// إعدادات المكتبة
-const CONFIG = {
-    maxFileSize: 50 * 1024 * 1024, // 50 ميغابايت
-    allowedTypes: ['application/pdf'],
-    categories: ['عام', 'تعليمي', 'أدبي']
+const repository = {
+    owner: 'Unknoun-Boy',
+    name: 'iqra-ma3na',
+    branch: 'main'
 };
 
-// متغيرات عامة
-let allBooks = [];
-let filteredBooks = [];
+const categories = [
+    { folder: 'general', label: 'عام', stat: 'general' },
+    { folder: 'educational', label: 'تعليمي', stat: 'educational' },
+    { folder: 'literary', label: 'أدبي', stat: 'literary' }
+];
 
-// =======================
-// وظائف تحميل البيانات
-// =======================
+const elements = {
+    search: document.getElementById('search-input'),
+    category: document.getElementById('category-filter'),
+    loading: document.getElementById('loading-message'),
+    grid: document.getElementById('books-grid'),
+    empty: document.getElementById('no-results'),
+    total: document.getElementById('total-books'),
+    general: document.getElementById('general-count'),
+    educational: document.getElementById('educational-count'),
+    literary: document.getElementById('literary-count')
+};
 
-// تحميل جميع الكتب من Supabase
-async function loadBooks() {
-    if (!ensureSupabase()) return;
-    try {
-        showLoading(true);
-        
-        const { data: books, error } = await supabase
-            .from('books')
-            .select('*')
-            .order('upload_date', { ascending: false });
+let books = [];
 
-        if (error) {
-            throw error;
-        }
-
-        allBooks = books || [];
-        filteredBooks = [...allBooks];
-        
-        displayBooks(filteredBooks);
-        updateStats();
-        
-    } catch (error) {
-        console.error('خطأ في تحميل الكتب:', error);
-        showError('فشل في تحميل الكتب. يرجى المحاولة لاحقاً.');
-    } finally {
-        showLoading(false);
-    }
+function getApiUrl(folder) {
+    return `https://api.github.com/repos/${repository.owner}/${repository.name}/contents/books/${folder}?ref=${repository.branch}`;
 }
 
-// عرض الكتب في الواجهة
-function displayBooks(books) {
-    const booksGrid = document.getElementById('books-grid');
-    const noResults = document.getElementById('no-results');
-    
-    if (!books || books.length === 0) {
-        if (booksGrid) booksGrid.style.display = 'none';
-        if (noResults) noResults.style.display = 'block';
-        return;
-    }
-    
-    if (booksGrid) booksGrid.style.display = 'grid';
-    if (noResults) noResults.style.display = 'none';
-    
-    if (booksGrid) {
-        booksGrid.innerHTML = books.map(book => `
-            <div class="book-card" data-category="${book.category}">
-                <div class="book-content">
-                    <h3 class="book-title">${escapeHtml(book.title)}</h3>
-                    <span class="book-category">${book.category}</span>
-                    <span class="book-date">${formatDate(book.upload_date)}</span>
-                </div>
-                <div class="book-actions">
-                    <a href="${book.file_url}" target="_blank" rel="noopener" class="btn btn-read">
-                        📖 قراءة
-                    </a>
-                    <a href="${book.file_url}" download="${escapeHtml(book.title)}.pdf" class="btn btn-download">
-                        ⬇️ تحميل
-                    </a>
-                </div>
-            </div>
-        `).join('');
-    }
-}
+function getFilteredBooks() {
+    const searchTerm = elements.search.value.trim().toLocaleLowerCase('ar');
+    const selectedCategory = elements.category.value;
 
-// تحديث الإحصائيات
-function updateStats() {
-    const stats = calculateStats(allBooks);
-    
-    updateElementText('total-books', stats.total);
-    updateElementText('general-count', stats.عام);
-    updateElementText('educational-count', stats.تعليمي);
-    updateElementText('literary-count', stats.أدبي);
-    
-    // للوحة الإدارة
-    updateElementText('admin-total-books', stats.total);
-    updateElementText('admin-general-count', stats.عام);
-    updateElementText('admin-educational-count', stats.تعليمي);
-    updateElementText('admin-literary-count', stats.أدبي);
-}
-
-// حساب الإحصائيات
-function calculateStats(books) {
-    const stats = { total: 0, عام: 0, تعليمي: 0, أدبي: 0 };
-    
-    books.forEach(book => {
-        stats.total++;
-        if (stats.hasOwnProperty(book.category)) {
-            stats[book.category]++;
-        }
-    });
-    
-    return stats;
-}
-
-// =======================
-// وظائف البحث والفلترة
-// =======================
-
-// البحث في الكتب
-function searchBooks() {
-    const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
-    const selectedCategory = document.getElementById('category-filter')?.value || 'الكل';
-    
-    filteredBooks = allBooks.filter(book => {
-        const matchesSearch = book.title.toLowerCase().includes(searchTerm);
+    return books.filter((book) => {
+        const title = book.title.toLocaleLowerCase('ar');
+        const matchesSearch = title.includes(searchTerm);
         const matchesCategory = selectedCategory === 'الكل' || book.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
-    
-    displayBooks(filteredBooks);
 }
 
-// إعداد مستمعي أحداث البحث
-function setupSearchListeners() {
-    const searchInput = document.getElementById('search-input');
-    const categoryFilter = document.getElementById('category-filter');
-    
-    if (searchInput) {
-        searchInput.addEventListener('input', searchBooks);
-        searchInput.addEventListener('keyup', searchBooks);
-    }
-    
-    if (categoryFilter) {
-        categoryFilter.addEventListener('change', searchBooks);
-    }
+function getTitle(fileName) {
+    return fileName.replace(/\.pdf$/i, '').replace(/[-_]+/g, ' ');
 }
 
-// =======================
-// وظائف إدارة الكتب
-// =======================
+function createBookCard(book) {
+    const card = document.createElement('article');
+    card.className = 'book-card';
 
-// إضافة كتاب جديد
-async function handleAddBook(event) {
-    event.preventDefault();
-    if (!ensureSupabase()) return;
-    
-    const title = document.getElementById('book-title')?.value.trim();
-    const category = document.getElementById('book-category')?.value;
-    const pdfFile = document.getElementById('pdf-file')?.files[0];
-    
-    // التحقق من البيانات
-    if (!title || !category || !pdfFile) {
-        showAlert('يرجى ملء جميع الحقول المطلوبة', 'error');
-        return;
+    const content = document.createElement('div');
+    content.className = 'book-content';
+
+    const title = document.createElement('h2');
+    title.className = 'book-title';
+    title.textContent = book.title;
+
+    const category = document.createElement('span');
+    category.className = 'book-category';
+    category.textContent = book.category;
+
+    content.append(title, category);
+
+    const actions = document.createElement('div');
+    actions.className = 'book-actions';
+    actions.append(
+        createBookLink(book.url, '📖 قراءة', 'btn btn-read'),
+        createBookLink(book.url, '⬇️ تحميل', 'btn btn-download', book.title)
+    );
+
+    card.append(content, actions);
+    return card;
+}
+
+function createBookLink(url, label, className, downloadName) {
+    const link = document.createElement('a');
+    link.className = className;
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = label;
+
+    if (downloadName) {
+        link.download = downloadName;
     }
-    
-    // التحقق من نوع الملف
-    if (!CONFIG.allowedTypes.includes(pdfFile.type)) {
-        showAlert('نوع الملف غير مدعوم. يرجى رفع ملف PDF فقط', 'error');
-        return;
-    }
-    
-    // التحقق من حجم الملف
-    if (pdfFile.size > CONFIG.maxFileSize) {
-        showAlert('حجم الملف كبير جداً. الحد الأقصى 50 ميغابايت', 'error');
-        return;
-    }
-    
+
+    return link;
+}
+
+function updateStats() {
+    const counts = books.reduce((result, book) => {
+        result.total += 1;
+        const category = categories.find((item) => item.label === book.category);
+        if (category) {
+            result[category.stat] += 1;
+        }
+        return result;
+    }, { total: 0, general: 0, educational: 0, literary: 0 });
+
+    elements.total.textContent = counts.total;
+    elements.general.textContent = counts.general;
+    elements.educational.textContent = counts.educational;
+    elements.literary.textContent = counts.literary;
+}
+
+function renderBooks() {
+    const filteredBooks = getFilteredBooks();
+    elements.grid.replaceChildren(...filteredBooks.map(createBookCard));
+    elements.grid.hidden = filteredBooks.length === 0;
+    elements.empty.hidden = filteredBooks.length !== 0;
+}
+
+async function loadBooks() {
+    elements.loading.hidden = false;
+    elements.empty.hidden = true;
+
     try {
-        setUploadState(true);
-        
-        // رفع الملف إلى Supabase Storage
-        const fileName = generateFileName(title, pdfFile.name);
-        
-        const { data: fileData, error: fileError } = await supabase.storage
-            .from('books')
-            .upload(fileName, pdfFile, {
-                cacheControl: '3600',
-                upsert: false
-            });
+        const responses = await Promise.all(categories.map(async (category) => {
+            const response = await fetch(getApiUrl(category.folder));
+            if (!response.ok) {
+                throw new Error(`GitHub returned ${response.status}`);
+            }
 
-        if (fileError) {
-            throw new Error(`فشل في رفع الملف: ${fileError.message}`);
-        }
+            const files = await response.json();
+            return files
+                .filter((file) => file.type === 'file' && /\.pdf$/i.test(file.name))
+                .map((file) => ({
+                    title: getTitle(file.name),
+                    category: category.label,
+                    url: file.download_url
+                }));
+        }));
 
-        // الحصول على الرابط العام للملف
-        const { data: urlData } = supabase.storage
-            .from('books')
-            .getPublicUrl(fileName);
-
-        // إضافة البيانات لقاعدة البيانات
-        const { data: bookData, error: dbError } = await supabase
-            .from('books')
-            .insert([{
-                title: title,
-                category: category,
-                file_url: urlData.publicUrl,
-                file_name: fileName,
-                file_size: pdfFile.size
-            }])
-            .select()
-            .single();
-
-        if (dbError) {
-            // حذف الملف إذا فشلت إضافة البيانات
-            await supabase.storage.from('books').remove([fileName]);
-            throw new Error(`فشل في حفظ بيانات الكتاب: ${dbError.message}`);
-        }
-
-        // نجح الحفظ
-        showAlert('✅ تم إضافة الكتاب بنجاح!', 'success');
-        
-        // تحديث القوائم
-        allBooks.unshift(bookData);
-        filteredBooks = [...allBooks];
+        books = responses.flat();
+        books.sort((first, second) => first.title.localeCompare(second.title, 'ar'));
         updateStats();
-        displayBooks(filteredBooks);
-        loadAdminBooks();
-        
-        // إعادة تعيين النموذج
-        document.getElementById('add-book-form').reset();
-        
+        renderBooks();
     } catch (error) {
-        console.error('خطأ في إضافة الكتاب:', error);
-        showAlert(`❌ ${error.message}`, 'error');
+        console.error('Unable to load books from GitHub:', error);
+        elements.empty.querySelector('h3').textContent = 'تعذر تحميل الكتب';
+        elements.empty.querySelector('p').textContent =
+            'تحقق من اتصال الإنترنت وحاول تحديث الصفحة.';
+        elements.empty.hidden = false;
     } finally {
-        setUploadState(false);
+        elements.loading.hidden = true;
     }
 }
 
-// حذف كتاب
-async function deleteBook(bookId, fileName) {
-    if (!ensureSupabase()) return;
-    if (!confirm('هل أنت متأكد من حذف هذا الكتاب؟\nهذا الإجراء لا يمكن التراجع عنه.')) {
-        return;
-    }
-    
-    try {
-        // حذف الملف من Storage
-        const { error: storageError } = await supabase.storage
-            .from('books')
-            .remove([fileName]);
-
-        if (storageError) {
-            console.warn('تحذير: فشل في حذف الملف من التخزين:', storageError);
-        }
-
-        // حذف البيانات من قاعدة البيانات
-        const { error: dbError } = await supabase
-            .from('books')
-            .delete()
-            .eq('id', bookId);
-
-        if (dbError) {
-            throw new Error(`فشل في حذف بيانات الكتاب: ${dbError.message}`);
-        }
-
-        // تحديث القوائم المحلية
-        allBooks = allBooks.filter(book => book.id !== bookId);
-        filteredBooks = filteredBooks.filter(book => book.id !== bookId);
-        
-        updateStats();
-        displayBooks(filteredBooks);
-        loadAdminBooks();
-        
-        showAlert('✅ تم حذف الكتاب بنجاح', 'success');
-        
-    } catch (error) {
-        console.error('خطأ في حذف الكتاب:', error);
-        showAlert(`❌ ${error.message}`, 'error');
-    }
-}
-
-// =======================
-// وظائف لوحة الإدارة
-// =======================
-
-// تحميل الكتب في لوحة الإدارة
-async function loadAdminBooks() {
-    const adminBooksList = document.getElementById('admin-books-list');
-    if (!adminBooksList) return;
-    
-    if (allBooks.length === 0) {
-        adminBooksList.innerHTML = `
-            <div class="empty-state">
-                <p>لا توجد كتب في المكتبة حالياً</p>
-            </div>
-        `;
-        return;
-    }
-    
-    adminBooksList.innerHTML = allBooks.map(book => `
-        <div class="admin-book-item">
-            <div class="admin-book-info">
-                <h4>${escapeHtml(book.title)}</h4>
-                <p>القسم: ${book.category} | التاريخ: ${formatDate(book.upload_date)} | الحجم: ${formatFileSize(book.file_size)}</p>
-            </div>
-            <div class="admin-book-actions">
-                <button onclick="deleteBook(${book.id}, '${book.file_name}')" class="btn btn-delete">
-                    🗑️ حذف
-                </button>
-            </div>
-        </div>
-    `).join('');
-}
-
-// تحديث إحصائيات الإدارة
-async function loadAdminStats() {
-    await loadBooks();
-}
-
-// تحديث قائمة الكتب في الإدارة
-async function refreshAdminBooks() {
-    await loadBooks();
-    loadAdminBooks();
-    showAlert('✅ تم تحديث القائمة', 'success');
-}
-
-// =======================
-// وظائف مساعدة
-// =======================
-
-// إنشاء اسم ملف فريد
-function generateFileName(title, originalName) {
-    const timestamp = Date.now();
-    const sanitizedTitle = sanitizeFileName(title);
-    const extension = originalName.split('.').pop();
-    return `${timestamp}_${sanitizedTitle}.${extension}`;
-}
-
-// تنظيف اسم الملف
-function sanitizeFileName(fileName) {
-    return fileName
-        .replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, '') // الاحتفاظ بالعربية والإنجليزية والأرقام فقط
-        .replace(/\s+/g, '_') // استبدال المسافات بشرطات سفلية
-        .substring(0, 50); // تحديد الطول
-}
-
-// تنسيق التاريخ
-function formatDate(dateString) {
-    if (!dateString) return 'غير محدد';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
-
-// تنسيق حجم الملف
-function formatFileSize(bytes) {
-    if (!bytes) return 'غير محدد';
-    if (bytes === 0) return '0 بايت';
-    
-    const k = 1024;
-    const sizes = ['بايت', 'كيلوبايت', 'ميغابايت', 'غيغابايت'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-// حماية من XSS
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// تحديث نص عنصر
-function updateElementText(id, text) {
-    const element = document.getElementById(id);
-    if (element) {
-        element.textContent = text;
-    }
-}
-
-// إظهار/إخفاء التحميل
-function showLoading(show) {
-    const loadingMessage = document.getElementById('loading-message');
-    if (loadingMessage) {
-        loadingMessage.style.display = show ? 'block' : 'none';
-    }
-}
-
-// إظهار رسالة خطأ
-function showError(message) {
-    console.error(message);
-    showAlert(message, 'error');
-}
-
-// إظهار تنبيه
-function showAlert(message, type = 'info') {
-    // يمكن تحسين هذا لاحقاً بتصميم أفضل
-    alert(message);
-}
-
-// تعيين حالة الرفع
-function setUploadState(isUploading) {
-    const uploadText = document.getElementById('upload-text');
-    const uploadLoading = document.getElementById('upload-loading');
-    const submitButton = document.querySelector('#add-book-form button[type="submit"]');
-    
-    if (uploadText) uploadText.style.display = isUploading ? 'none' : 'inline';
-    if (uploadLoading) uploadLoading.style.display = isUploading ? 'inline' : 'none';
-    if (submitButton) submitButton.disabled = isUploading;
-}
-
-// =======================
-// تهيئة التطبيق
-// =======================
-
-// تحميل مكتبة Supabase
-function loadSupabaseLibrary() {
-    return new Promise((resolve, reject) => {
-        if (window.supabase) {
-            resolve();
-            return;
-        }
-        
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/@supabase/supabase-js@2';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
-}
-
-// بدء التطبيق عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', async function() {
-    try {
-        // تحميل مكتبة Supabase
-        await loadSupabaseLibrary();
-        // تهيئة عميل Supabase إذا كانت المفات محفوظة في config.js
-        initSupabase();
-        
-        // إعداد مستمعي الأحداث
-        setupSearchListeners();
-        
-        // تحميل البيانات الأولية
-        await loadBooks();
-        
-        console.log('✅ تم تحميل مكتبة إقرأ معنا بنجاح');
-        
-    } catch (error) {
-        console.error('❌ خطأ في تهيئة التطبيق:', error);
-        showError('فشل في تحميل المكتبة. يرجى إعادة تحميل الصفحة.');
-    }
-});
-
-// جعل الوظائف متاحة عالمياً للاستخدام في HTML
-window.handleAddBook = handleAddBook;
-window.deleteBook = deleteBook;
-window.loadAdminStats = loadAdminStats;
-window.loadAdminBooks = loadAdminBooks;
-window.refreshAdminBooks = refreshAdminBooks;
+elements.search.addEventListener('input', renderBooks);
+elements.category.addEventListener('change', renderBooks);
+loadBooks();
