@@ -10,7 +10,15 @@ project to any static host.
 
 ## Add a book
 
-Create one of these folders in GitHub:
+Open `admin.html` on the deployed website. The admin page uses a GitHub
+personal access token for uploads and deletions. Create a fine-grained token
+for this repository with **Contents: Read and write**, then enter it on the
+admin page.
+
+The token is kept only for the current tab. It is removed when you log out or
+close the tab.
+
+The public library reads PDFs from these folders:
 
 ```text
 books/general/
@@ -18,9 +26,7 @@ books/educational/
 books/literary/
 ```
 
-Then open the folder, choose **Add file → Upload files**, drag in a PDF, and
-commit the change. The website finds the PDF automatically; its filename is
-used as the book title. Use clear filenames such as `learning-basics.pdf`.
+The website finds PDFs automatically; the filename is used as the book title.
 
 The site uses GitHub's public API, so it is best for a small library. Only
 publish books that you are allowed to distribute.

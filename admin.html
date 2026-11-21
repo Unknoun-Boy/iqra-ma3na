@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة مكتبة إقرأ معنا</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header compact-header">
+        <div class="container">
+            <h1 class="main-title">لوحة إدارة المكتبة</h1>
+            <a class="admin-link" href="index.html">العودة للمكتبة</a>
+        </div>
+    </header>
+
+    <main class="container admin-container">
+        <section id="login-section" class="admin-panel">
+            <h2>تسجيل الدخول</h2>
+            <p class="muted">أدخل رمز GitHub الذي يملك صلاحية الكتابة على هذا المستودع. لا يُحفظ الرمز بعد إغلاق علامة التبويب.</p>
+            <form id="login-form" class="admin-form">
+                <label for="token-input">رمز GitHub</label>
+                <input id="token-input" type="password" autocomplete="off" placeholder="github_pat_..." required>
+                <button class="btn btn-read" type="submit">دخول</button>
+            </form>
+        </section>
+
+        <div id="admin-app" hidden>
+            <section class="admin-panel">
+                <h2>إضافة كتاب</h2>
+                <form id="upload-form" class="admin-form">
+                    <label for="book-file">ملف PDF</label>
+                    <input id="book-file" type="file" accept="application/pdf,.pdf" required>
+
+                    <label for="book-category">القسم</label>
+                    <select id="book-category" required>
+                        <option value="general">عام</option>
+                        <option value="educational">تعليمي</option>
+                        <option value="literary">أدبي</option>
+                    </select>
+
+                    <label for="book-title">اسم الكتاب الظاهر</label>
+                    <input id="book-title" type="text" placeholder="اختياري؛ سيُستخدم اسم الملف تلقائيًا">
+                    <button id="upload-button" class="btn btn-download" type="submit">رفع الكتاب</button>
+                </form>
+            </section>
+
+            <section class="admin-panel">
+                <div class="admin-heading">
+                    <h2>الكتب الموجودة</h2>
+                    <button id="logout-button" class="text-button" type="button">تسجيل الخروج</button>
+                </div>
+                <div id="admin-status" class="admin-status" role="status"></div>
+                <div id="admin-books" class="admin-books"></div>
+            </section>
+        </div>
+    </main>
+
+    <script src="admin.js"></script>
+</body>
+</html>
