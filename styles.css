@@ -48,6 +48,26 @@ body {
     font-size: 1.2rem;
 }
 
+.admin-link {
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 999px;
+    color: #fff;
+    display: inline-block;
+    margin-top: 18px;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.compact-header {
+    margin-bottom: 30px;
+    padding: 24px 0;
+}
+
+.compact-header .main-title {
+    margin-bottom: 0;
+}
+
 .search-section {
     margin-bottom: 30px;
 }
@@ -224,5 +244,121 @@ body {
 
     .book-actions {
         flex-direction: column;
+    }
+}
+
+.admin-container {
+    max-width: 900px;
+    padding-bottom: 40px;
+}
+
+.admin-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    padding: 24px;
+}
+
+.admin-panel h2 {
+    margin-bottom: 16px;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.admin-form {
+    display: grid;
+    gap: 10px;
+}
+
+.admin-form label {
+    font-weight: 700;
+    margin-top: 6px;
+}
+
+.admin-form input,
+.admin-form select {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font: inherit;
+    padding: 12px;
+}
+
+.admin-form .btn {
+    border: 0;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.admin-heading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.text-button,
+.small-button {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    font: inherit;
+    padding: 8px 12px;
+    text-decoration: none;
+}
+
+.admin-status {
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
+.admin-status.error {
+    color: #b42318;
+}
+
+.admin-books {
+    display: grid;
+    gap: 10px;
+}
+
+.admin-book {
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+}
+
+.admin-book strong,
+.admin-category {
+    display: block;
+}
+
+.admin-category {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.admin-book-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.small-button.danger {
+    border-color: #f3b7b1;
+    color: #b42318;
+}
+
+@media (max-width: 480px) {
+    .admin-book {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
     }
 }
